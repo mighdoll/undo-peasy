@@ -1,6 +1,6 @@
 Undo/Redo support for [easy peasy](https://easy-peasy.now.sh/).
 
-_`patched-undo-peasy` depends on an [easy peasy fork](https://github.com/mighdoll/patched-peasy). (but modifying undo-peasy to depend on stock easy-peasy should be straightforward.)_
+_`undo-peasy` depends on a version of easy-peasy at least 3.4.0-beta.3._
 
 ## Usage
 

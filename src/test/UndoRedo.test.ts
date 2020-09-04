@@ -1,5 +1,5 @@
 import "chai/register-should";
-import { createStore, action, Action, Store, Computed, computed } from "patched-peasy";
+import { createStore, action, Action, Store, Computed, computed } from "easy-peasy";
 import { undoable, WithUndo, ModelWithUndo } from "../UndoRedoState";
 import { undoRedo as undoRedoMiddleware } from "../UndoRedoMiddleware";
 import { assert, should } from "chai";

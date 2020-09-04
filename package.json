@@ -1,10 +1,10 @@
 {
-  "name": "patched-undo-peasy",
-  "version": "0.1.6",
+  "name": "undo-peasy",
+  "version": "0.1.7",
   "main": "src/UndoRedoApi.ts",
   "dependencies": {
     "lodash": "^4.17.20",
-    "patched-peasy": "^3.4.0-beta.0-patch1",
+    "easy-peasy": "^3.4.0-beta.2",
     "redux": "^4.0.5"
   },
   "scripts": {
@@ -38,10 +38,10 @@
   "description": "undo/redo for easy peasy",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mighdoll/patched-undo-peasy.git"
+    "url": "https://github.com/mighdoll/undo-peasy.git"
   },
   "author": "lee <lee@underneath.ca>",
-  "homepage": "https://github.com/mighdoll/patched-undo-peasy#readme",
+  "homepage": "https://github.com/mighdoll/undo-peasy#readme",
   "license": "MIT",
   "keywords": [
     "react",
