@@ -1,0 +1,9 @@
+dist/
+node_modules/
+.vscode/
+.DS_Store
+*.log
+web_modules/
+web/
+build/
+.yalc/
