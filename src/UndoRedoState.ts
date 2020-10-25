@@ -44,7 +44,6 @@ export interface UndoHistory {
   computeds?: string[][]; // paths of all computed properties in the model (not persisted in the history)
 }
 
-
 const undoModel: UndoHistory = { undo: [], redo: [] };
 
 /** Used internally, to pass params and raw state from middleware config to action reducers.
@@ -127,4 +126,3 @@ const undoRedo = action<WithUndo, UndoParams>((draftState) => {
     Object.assign(draftState, redoState);
   }
 });
-

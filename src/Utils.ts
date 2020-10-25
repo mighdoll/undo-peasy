@@ -2,7 +2,7 @@ import _ from "lodash";
 
 type ObjOrArray = object | Array<any>;
 
-/** Return a copy of an object with some fields elided. 
+/** Return a copy of an object with some fields elided.
  *
  * @param fn copy will not include source properties for which this function returns true
  */
@@ -74,7 +74,6 @@ export function findGetters(
   });
   return result;
 }
-
 
 function isGetter(src: {}, key: string): boolean {
   const desc = Object.getOwnPropertyDescriptor(src, key);

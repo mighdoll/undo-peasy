@@ -1,5 +1,12 @@
 import "chai/register-should";
-import { createStore, action, Action, Store, Computed, computed } from "easy-peasy";
+import {
+  createStore,
+  action,
+  Action,
+  Store,
+  Computed,
+  computed,
+} from "easy-peasy";
 import { undoable, WithUndo, ModelWithUndo } from "../UndoRedoState";
 import { undoRedo as undoRedoMiddleware } from "../UndoRedoMiddleware";
 import { assert, should } from "chai";
@@ -14,7 +21,6 @@ const simpleModel: Model = undoable({
     state.count++;
   }),
 });
-
 
 interface ViewModel extends WithUndo {
   count: number;
@@ -33,11 +39,8 @@ const viewModel: ViewModel = undoable({
   increment: action((state) => {
     state.count++;
   }),
-  countSquared: computed(
-    [(model) => model.view],
-    (view) => view * view)
+  countSquared: computed([(model) => model.view], (view) => view * view),
 });
-
 
 function makeStore() {
   const store = createStore(undoable(simpleModel), {
