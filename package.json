@@ -4,7 +4,7 @@
   "main": "src/UndoRedoApi.ts",
   "dependencies": {
     "lodash": "^4.17.20",
-    "easy-peasy": "^3.4.0-beta.2",
+    "easy-peasy": "^4.1.0",
     "redux": "^4.0.5"
   },
   "scripts": {
