@@ -3,6 +3,9 @@ import "chai/register-should";
 import { action, Action, Computed, computed, createStore } from "easy-peasy";
 import { undoRedo as undoRedoMiddleware } from "../UndoRedoMiddleware";
 import { undoable, WithUndo } from "../UndoRedoState";
+import { enableES5 } from "immer";
+
+enableES5();
 
 interface Model extends WithUndo {
   count: number;
