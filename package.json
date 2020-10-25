@@ -3,8 +3,8 @@
   "version": "0.1.7",
   "main": "src/UndoRedoApi.ts",
   "dependencies": {
-    "lodash": "^4.17.20",
     "easy-peasy": "4.1.0-beta.4",
+    "lodash": "^4.17.20",
     "redux": "^4.0.5"
   },
   "scripts": {
@@ -15,24 +15,25 @@
     "build": "node build.js production"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.12",
-    "@types/lodash": "^4.14.159",
-    "@typescript-eslint/eslint-plugin": "^3.9.1",
-    "@typescript-eslint/parser": "^3.9.1",
+    "@types/chai": "^4.2.14",
+    "@types/lodash": "^4.14.162",
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@typescript-eslint/parser": "^4.5.0",
     "chai": "^4.2.0",
-    "chokidar": "^3.4.2",
-    "esbuild": "^0.6.26",
-    "eslint": "^7.7.0",
-    "eslint-config-prettier": "^6.11.0",
+    "chokidar": "^3.4.3",
+    "esbuild": "^0.7.19",
+    "eslint": "^7.12.0",
+    "eslint-config-prettier": "^6.14.0",
     "eslint-plugin-prettier": "^3.1.4",
     "fs-extra": "^9.0.1",
-    "jest": "^26.4.0",
-    "prettier": "^2.0.5",
-    "react": "^16.13.1",
-    "ts-jest": "^26.2.0",
-    "typescript": "^3.9.7"
+    "jest": "^26.6.1",
+    "prettier": "^2.1.2",
+    "react": "^17.0.1",
+    "ts-jest": "^26.4.2",
+    "typescript": "^4.0.3"
   },
   "peerDependencies": {
+    "immer": "^7.0.14",
     "react": "^16.13.1"
   },
   "description": "undo/redo for easy peasy",
