@@ -12,6 +12,7 @@ function runBuild() {
     minify: production,
     splitting: true,
     format: "esm",
+    target: "es2019",
     define: { "process.env.NODE_ENV": production?'"production"':'"development"' },
   }).then(() => {
     console.log("Built esbuild to " + outDir);
