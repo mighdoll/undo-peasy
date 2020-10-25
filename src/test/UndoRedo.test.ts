@@ -1,15 +1,8 @@
+import { assert } from "chai";
 import "chai/register-should";
-import {
-  createStore,
-  action,
-  Action,
-  Store,
-  Computed,
-  computed,
-} from "easy-peasy";
-import { undoable, WithUndo, ModelWithUndo } from "../UndoRedoState";
+import { action, Action, Computed, computed, createStore } from "easy-peasy";
 import { undoRedo as undoRedoMiddleware } from "../UndoRedoMiddleware";
-import { assert, should } from "chai";
+import { undoable, WithUndo } from "../UndoRedoState";
 
 interface Model extends WithUndo {
   count: number;
