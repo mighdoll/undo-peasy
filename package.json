@@ -1,6 +1,6 @@
 {
   "name": "undo-peasy",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "main": "src/UndoRedoApi.ts",
   "dependencies": {
     "easy-peasy": "4.1.0-beta.4",
