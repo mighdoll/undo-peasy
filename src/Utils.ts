@@ -2,16 +2,19 @@ import _ from "lodash";
 
 type ObjOrArray = object | Array<any>;
 
-/** return a copy of an object with fields removed by a filter function */
-export function removeDeep(
+/** Return a copy of an object with some fields elided. 
+ *
+ * @param fn copy will not include source properties for which this function returns true
+ */
+export function copyFiltered(
   src: ObjOrArray,
   fn: (value: any, key: string, path: string[]) => boolean
 ): ObjOrArray {
-  return removeRecursive(src, []);
+  return filterCopyRecurse(src, []);
 
-  function removeRecursive(obj: ObjOrArray, path: string[]): ObjOrArray {
+  function filterCopyRecurse(obj: ObjOrArray, path: string[]): ObjOrArray {
     if (_.isArray(obj)) {
-      return obj.map((elem) => removeDeep(elem, fn));
+      return obj.map((elem) => filterCopyRecurse(elem, path));
     }
 
     if (_.isObject(obj)) {
@@ -20,7 +23,7 @@ export function removeDeep(
       );
       const copies = filtered.map(([key, value]) => [
         key,
-        removeRecursive(value, path.concat([key])),
+        filterCopyRecurse(value, path.concat([key])),
       ]);
       return Object.fromEntries(copies);
     }
@@ -30,7 +33,10 @@ export function removeDeep(
 }
 
 /** replace undefined fields with a default value */
-export function replaceUndefined<T extends Partial<U>, U>(obj: T, defaults: U): T & U {
+export function replaceUndefined<T extends Partial<U>, U>(
+  obj: T,
+  defaults: U
+): T & U {
   const result = { ...defaults, ...removeUndefined(obj) };
   return result;
 }
@@ -50,7 +56,11 @@ export interface AnyObject {
   [key: string]: any;
 }
 
-export function findGetters(src: AnyObject, pathPrefix: string[] = []): string[][] {
+/** @return the paths of to all getter properties nested in a source object */
+export function findGetters(
+  src: AnyObject,
+  pathPrefix: string[] = []
+): string[][] {
   const result = Object.entries(src).flatMap(([key, value]) => {
     if (isGetter(src, key)) {
       const getter = [pathPrefix.concat([key])];

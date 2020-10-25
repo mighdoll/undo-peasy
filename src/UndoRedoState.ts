@@ -1,11 +1,11 @@
 import _ from "lodash";
 import { Action, action } from "easy-peasy";
 import { KeyPathFilter } from "./UndoRedoMiddleware";
-import { AnyObject, findGetters, removeDeep } from "./Utils";
+import { AnyObject, copyFiltered, findGetters } from "./Utils";
 
 /**
  * WithUndo defines actions and history state to support Undo/Redo.
- * 
+ *
  * The root application model interface should extend WithUndo.
  */
 export interface WithUndo extends WithUndoHistory {
@@ -17,12 +17,19 @@ export interface WithUndo extends WithUndoHistory {
 
 /**
  * undoable adds state and action fields to a model instance support undo.
- * 
+ *
  * The root application model should be wrapped in undoable().
  * @param model application model
  */
 export function undoable<M extends {}>(model: M): ModelWithUndo<M> {
-  return { ...model, undoHistory: undoModel, undoSave, undoUndo, undoRedo, undoReset };
+  return {
+    ...model,
+    undoHistory: undoModel,
+    undoSave,
+    undoUndo,
+    undoRedo,
+    undoReset,
+  };
 }
 
 export type ModelWithUndo<T> = {
@@ -71,16 +78,21 @@ function saveCurrent(draftState: WithUndo, params: UndoParams) {
   const computeds = history.computeds!;
 
   // remove keys that shouldn't be saved in undo history (computeds, user filtered, and history state)
-  const filteredCopy: AnyObject = removeDeep(draftState, (_value, key, path) => {
-    const fullPath = path.concat([key]);
-    const isComputed = !!computeds.find((computedPath) =>
-      _.isEqual(fullPath, computedPath)
-    );
-    return isComputed || params.noSaveKeys(key, path);
-  });
-  delete filteredCopy["undoHistory"];
-  
-  draftState.undoHistory.current = filteredCopy;
+  const filteredState: AnyObject = copyFiltered(
+    draftState,
+    (_value, key, path) => {
+      if (path.length === 0 && key === "undoHistory") {
+        return true;
+      }
+      const fullPath = path.concat([key]);
+      const isComputed = !!computeds.find((computedPath) =>
+        _.isEqual(fullPath, computedPath)
+      );
+      return isComputed || params.noSaveKeys(key, path);
+    }
+  );
+
+  draftState.undoHistory.current = filteredState;
 }
 
 const undoReset = action<WithUndo, UndoParams>((draftState, params) => {

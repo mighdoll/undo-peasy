@@ -1,6 +1,6 @@
 import "chai/register-should";
 import _ from "lodash";
-import { findGetters, removeDeep } from "../Utils";
+import { findGetters, copyFiltered } from "../Utils";
 
 
 test("findGetters", () => {
@@ -30,7 +30,7 @@ test("remove functions", () => {
   withFun.deepArray[0].fun = () => {};
   withFun.should.deep.not.equal(src);
 
-  const filtered = removeDeep(withFun, _.isFunction);
+  const filtered = copyFiltered(withFun, _.isFunction);
   filtered.should.deep.equal(src);
   filtered.should.not.equal(src);
 });
