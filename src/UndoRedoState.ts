@@ -2,6 +2,7 @@ import _ from "lodash";
 import { Action, action } from "easy-peasy";
 import { KeyPathFilter } from "./UndoRedoMiddleware";
 import { AnyObject, copyFiltered, findGetters } from "./Utils";
+import { saveCurrentState } from "./LocalStorage";
 
 /**
  * WithUndo defines actions and history state to support Undo/Redo.
@@ -90,6 +91,8 @@ function saveCurrent(draftState: WithUndo, params: UndoParams) {
       return isComputed || params.noSaveKeys(key, path);
     }
   );
+
+  saveCurrentState(filteredState);
 
   draftState.undoHistory.current = filteredState;
 }
