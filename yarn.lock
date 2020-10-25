@@ -1355,7 +1355,7 @@ domexception@^2.0.1:
   dependencies:
     webidl-conversions "^5.0.0"
 
-easy-peasy@^4.1.0:
+easy-peasy@4.1.0-beta.4:
   version "4.1.0-beta.4"
   resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-4.1.0-beta.4.tgz#2fe1c60fe3e5c57ad7526799d5d5ea2702fc3424"
   integrity sha512-AkbPoxjcD6rMqlQKb6AVkc74q6TtWqomsfZoHZD6qFaRyXTslEncp0+zEal/tWJiD9qS7lhqkHignzqE3XWbzw==
