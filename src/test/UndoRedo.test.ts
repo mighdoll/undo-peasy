@@ -1,4 +1,3 @@
-import { assert } from "chai";
 import "chai/register-should";
 import {
   action,
@@ -7,14 +6,12 @@ import {
   Computed,
   computed,
   createStore,
-  State,
-  StateMapper,
   Store,
   ValidActionProperties,
 } from "easy-peasy";
+import { enableES5 } from "immer";
 import { undoRedo as undoRedoMiddleware } from "../UndoRedoMiddleware";
 import { undoable, undoableModelAndHistory, WithUndo } from "../UndoRedoState";
-import { enableES5 } from "immer";
 import { AnyObject } from "../Utils";
 
 enableES5();
@@ -68,7 +65,7 @@ interface StoreAndActions<M extends AnyObject> {
 }
 
 function withStore(fn: (storAndActions: StoreAndActions<Model>) => void) {
-  const {model,history} = undoableModelAndHistory(simpleModel);
+  const { model, history } = undoableModelAndHistory(simpleModel);
   const store = createStore(model, {
     middleware: [undoRedoMiddleware()],
   });
