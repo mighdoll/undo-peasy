@@ -1,10 +1,22 @@
 import { assert } from "chai";
 import "chai/register-should";
-import { action, Action, Computed, computed, createStore } from "easy-peasy";
+import {
+  action,
+  Action,
+  ActionMapper,
+  Computed,
+  computed,
+  createStore,
+  State,
+  StateMapper,
+  Store,
+  ValidActionProperties,
+} from "easy-peasy";
 import { undoRedo as undoRedoMiddleware } from "../UndoRedoMiddleware";
 import { undoable, WithUndo } from "../UndoRedoState";
 import { enableES5 } from "immer";
 import * as undoLS from "../LocalStorage";
+import { AnyObject } from "../Utils";
 
 enableES5();
 
@@ -51,6 +63,25 @@ function makeStore() {
   return { store, actions };
 }
 
+interface StoreAndActions<M extends AnyObject> {
+  store: Store<M>;
+  actions: ActionMapper<M, ValidActionProperties<M>>;
+}
+
+function withStore(fn: (storAndActions: StoreAndActions<Model>) => void) {
+  localStorage.clear();
+  const store = createStore(undoable(simpleModel), {
+    middleware: [undoRedoMiddleware()],
+  });
+  const actions = store.getActions();
+  actions.undoSave();
+  try {
+    fn({ store, actions });
+  } finally {
+    localStorage.clear();
+  }
+}
+
 function makeViewStore() {
   localStorage.clear();
   const store = createStore(undoable(viewModel), {
@@ -70,52 +101,42 @@ function noSaveActions(actionType: string): boolean {
 }
 
 test("save an action", () => {
-  const { store, actions } = makeStore();
-  actions.increment();
+  withStore(({ actions }) => {
+    actions.increment();
 
-  console.log(undoLS.currentIndex());
-  undoLS.currentIndex()!.should.equal(1);
+    console.log(undoLS.currentIndex());
+    undoLS.currentIndex()!.should.equal(1);
+    undoLS.allSaved().length.should.equal(2);
+  });
 });
 
-test.skip("save two actions", () => {
-  const { actions } = makeStore();
-  actions.increment();
-  actions.increment();
-  undoLS.currentIndex()!.should.equal(2);
-  // const history = store.getState().undoHistory;
-  // (history.current as any).count.should.equal(2);
-  // (history.undo[0] as any).count.should.equal(0);
-  // history.undo.length.should.equal(2);
+test("save two actions", () => {
+  withStore(({ actions }) => {
+    actions.increment();
+    actions.increment();
+    undoLS.currentIndex()!.should.equal(2);
+    undoLS.allSaved().length.should.equal(3);
+  });
 });
 
-test.skip("reset saved", () => {
-  const { store, actions } = makeStore();
-  actions.increment();
-  actions.increment();
-  actions.undoReset();
-  // const history = store.getState().undoHistory;
-  // history.redo.length.should.equal(0);
-  // history.undo.length.should.equal(0);
-  // const expectCount = store.getState().count;
-  // (history.current as any).count.should.equal(expectCount);
+test("undo an action", () => {
+  withStore(({ store, actions }) => {
+    actions.increment();
+    actions.undoUndo();
+    store.getState().count.should.equal(0);
+    undoLS.currentIndex()!.should.equal(0);
+    undoLS.allSaved().length.should.equal(2);
+  });
 });
 
-test.skip("undo an action", () => {
-  const { store, actions } = makeStore();
-  actions.increment();
-  actions.undoUndo();
-  store.getState().count.should.equal(0);
-  // const history = store.getState().undoHistory;
-  // history.undo.length.should.equal(0);
-});
-
-test.skip("undo two actions", () => {
-  const { store, actions } = makeStore();
-  actions.increment();
-  actions.increment();
-  actions.undoUndo();
-  actions.undoUndo();
-  store.getState().count.should.equal(0);
+test("undo two actions", () => {
+  withStore(({ store, actions }) => {
+    actions.increment();
+    actions.increment();
+    actions.undoUndo();
+    actions.undoUndo();
+    store.getState().count.should.equal(0);
+  });
   // const history = store.getState().undoHistory;
   // history.undo.length.should.equal(0);
   // (history.current as any).count.should.equal(0);
@@ -159,6 +180,20 @@ test.skip("undo empty doesn't crash", () => {
 test.skip("undo empty doesn't crash", () => {
   const { actions } = makeStore();
   actions.undoRedo();
+});
+
+test("reset clears history", () => {
+  withStore(({ store, actions }) => {
+    actions.increment();
+    actions.increment();
+    actions.undoReset();
+    store.getState().count.should.equal(2);
+    undoLS.currentIndex()!.should.equal(0);
+    actions.increment();
+    store.getState().count.should.equal(3);
+    actions.undoUndo();
+    store.getState().count.should.equal(2);
+  });
 });
 
 test.skip("don't save view keys", () => {

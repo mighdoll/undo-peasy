@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { LocalStorage } from "node-localstorage";
 import { AnyObject } from "./Utils";
 
@@ -12,10 +13,13 @@ export const currentKey = keyPrefix + "state-current";
  * The oldest undo state is undo-redo-0
  */
 
+// TODO this whole module an instance, so we can have mulitple local storage instances for parallel tests
+
 // for tests on nodejs only, we define a localStorage
 if (typeof localStorage === "undefined") {
   global.localStorage = new LocalStorage("./tmp");
 }
+
 
 export function save(state: AnyObject): void {
   const currentDex = currentIndex();
@@ -75,4 +79,16 @@ function deleteStates(start: number): void {
     localStorage.removeItem(key);
     deleteStates(start + 1);
   }
+}
+
+/** for testing */
+export function allSaved():AnyObject[] {
+  const results:AnyObject[] = [];
+  _.times(10).forEach(i => {
+    const item = localStorage.getItem(keyPrefix + i);
+    if (item) {
+      results.push(JSON.parse(item));
+    }
+  });
+  return results;
 }
