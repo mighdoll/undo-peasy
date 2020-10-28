@@ -20,10 +20,8 @@ export interface HistoryStore {
   redo: () => AnyObject | undefined;
   _currentIndex: () => number | undefined;
   _allSaved: () => AnyObject[];
-  _erase:() => void;
+  _erase: () => void;
 }
-
-let storages = 0;
 
 /** return a persistent store that holds undo/redo history */
 export function historyStore(): HistoryStore {
@@ -74,7 +72,6 @@ export function historyStore(): HistoryStore {
   }
 
   function saveState(state: AnyObject, index: number): void {
-    console.log("save,  index:", index);
     const indexString = index.toString();
     storage.setItem(keyPrefix + indexString, JSON.stringify(state));
     storage.setItem(currentKey, indexString);
@@ -110,16 +107,19 @@ export function historyStore(): HistoryStore {
     return results;
   }
 
-  function erase(): void {
-
-  }
+  function erase(): void {}
 }
+
+let storages = 0;
 
 function getStorage(): Storage {
   // for tests on nodejs only, we define a unique localStorage for each test run.
   if (typeof localStorage === "undefined") {
     storages++;
-    return new LocalStorage("./tmp/storage-" + storages);
+    const random = Math.floor(Math.random() * 10e8);
+    const storageName = `storage-${random}-${storages}`;
+    console.log("creating new storage:", storageName);
+    return new LocalStorage("./tmp/" + storageName);
   }
   return localStorage;
 }
