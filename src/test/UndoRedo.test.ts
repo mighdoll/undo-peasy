@@ -40,6 +40,7 @@ const viewModel: ViewModel = undoable({
 });
 
 function makeStore() {
+  // TODO put this in some kind of withStore with cleanup, to see if that fixes wallaby.js
   localStorage.clear();
 
   const store = createStore(undoable(simpleModel), {
