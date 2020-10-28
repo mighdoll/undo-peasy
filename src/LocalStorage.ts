@@ -13,82 +13,107 @@ export const currentKey = keyPrefix + "state-current";
  * The oldest undo state is undo-redo-0
  */
 
-// TODO this whole module an instance, so we can have mulitple local storage instances for parallel tests
-
-// for tests on nodejs only, we define a localStorage
-if (typeof localStorage === "undefined") {
-  global.localStorage = new LocalStorage("./tmp");
+export interface historyStore {
+  save: (state: AnyObject) => void;
+  reset: (state: AnyObject) => void;
+  undo: () => AnyObject | undefined;
+  redo: () => AnyObject | undefined;
+  _currentIndex: () => number | undefined;
+  _allSaved: () => AnyObject[];
 }
 
+let storages = 0;
 
-export function save(state: AnyObject): void {
-  const currentDex = currentIndex();
-  if (currentDex === undefined) {
-    saveState(state, 0);
-  } else {
-    deleteStates(currentDex + 1);
-    saveState(state, currentDex + 1);
-  }
-}
+/** return a persistent store that holds undo/redo history */
+export function historyStore() {
+  const storage = getStorage();
 
-export function reset(state: AnyObject): void {
-  deleteStates(0);
-  saveState(state, 0);
-}
+  return {
+    save,
+    reset,
+    undo,
+    redo,
+    _currentIndex: currentIndex,
+    _allSaved: allSaved,
+  };
 
-export function undo(): AnyObject | undefined {
-  const currentDex = currentIndex();
-  if (currentDex === undefined || currentDex === 0) {
-    return undefined;
-  }
-  const indexString = (currentDex - 1).toString();
-  const state = localStorage.getItem(keyPrefix + indexString);
-  if (state === null) {
-    console.log("unspected null", indexString);
-    return undefined;
-  }
-  localStorage.setItem(currentKey, indexString);
-  return JSON.parse(state);
-}
-
-export function redo(): AnyObject | undefined {
-  return undefined;
-}
-
-function saveState(state: AnyObject, index: number): void {
-  console.log("save,  index:", index);
-  const indexString = index.toString();
-  localStorage.setItem(keyPrefix + indexString, JSON.stringify(state));
-  localStorage.setItem(currentKey, indexString);
-}
-
-/** exported for testing */
-export function currentIndex(): number | undefined {
-  const valueString = localStorage.getItem(currentKey);
-  if (valueString) {
-    return parseInt(valueString);
-  } else {
-    return undefined;
-  }
-}
-
-function deleteStates(start: number): void {
-  const key = keyPrefix + start;
-  const item = localStorage.getItem(key);
-  if (item) {
-    localStorage.removeItem(key);
-    deleteStates(start + 1);
-  }
-}
-
-/** for testing */
-export function allSaved():AnyObject[] {
-  const results:AnyObject[] = [];
-  _.times(10).forEach(i => {
-    const item = localStorage.getItem(keyPrefix + i);
-    if (item) {
-      results.push(JSON.parse(item));
+  function save(state: AnyObject): void {
+    const currentDex = currentIndex();
+    if (currentDex === undefined) {
+      saveState(state, 0);
+    } else {
+      deleteStates(currentDex + 1);
+      saveState(state, currentDex + 1);
     }
-  });
-  return results;
+  }
+
+  function reset(state: AnyObject): void {
+    deleteStates(0);
+    saveState(state, 0);
+  }
+
+  function undo(): AnyObject | undefined {
+    const currentDex = currentIndex();
+    if (currentDex === undefined || currentDex === 0) {
+      return undefined;
+    }
+    const indexString = (currentDex - 1).toString();
+    const state = storage.getItem(keyPrefix + indexString);
+    if (state === null) {
+      console.log("unspected null", indexString);
+      return undefined;
+    }
+    storage.setItem(currentKey, indexString);
+    return JSON.parse(state);
+  }
+
+  function redo(): AnyObject | undefined {
+    return undefined;
+  }
+
+  function saveState(state: AnyObject, index: number): void {
+    console.log("save,  index:", index);
+    const indexString = index.toString();
+    storage.setItem(keyPrefix + indexString, JSON.stringify(state));
+    storage.setItem(currentKey, indexString);
+  }
+
+  function currentIndex(): number | undefined {
+    const valueString = localStorage.getItem(currentKey);
+    if (valueString) {
+      return parseInt(valueString);
+    } else {
+      return undefined;
+    }
+  }
+
+  function deleteStates(start: number): void {
+    const key = keyPrefix + start;
+    const item = localStorage.getItem(key);
+    if (item) {
+      storage.removeItem(key);
+      deleteStates(start + 1);
+    }
+  }
+
+  /** for testing */
+  function allSaved(): AnyObject[] {
+    const results: AnyObject[] = [];
+    _.times(10).forEach((i) => {
+      const item = storage.getItem(keyPrefix + i);
+      if (item) {
+        results.push(JSON.parse(item));
+      }
+    });
+    return results;
+  }
+}
+
+function getStorage(): Storage {
+  // for tests on nodejs only, we define a unique localStorage for each test run.
+  if (typeof localStorage === "undefined") {
+    storages++;
+    return new LocalStorage("./tmp/storage-" + storages);
+  }
+  return localStorage;
 }

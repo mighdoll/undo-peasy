@@ -23,6 +23,31 @@ export interface WithUndo extends HasComputeds {
  * @param model application model
  */
 export function undoable<M extends {}>(model: M): ModelWithUndo<M> {
+  const history = historyStore();
+  const undoSave = action<WithUndo, UndoParams>((draftState, params) => {
+    const state = filterState(draftState as WithUndo, params);
+    history.save(state);
+  });
+
+  const undoReset = action<WithUndo, UndoParams>((draftState, params) => {
+    const state = filterState(draftState as WithUndo, params);
+    history.reset(state);
+  });
+
+  const undoUndo = action<WithUndo, UndoParams>((draftState, params) => {
+    const undoState = history.undo();
+    if (undoState) {
+      Object.assign(draftState, undoState);
+    }
+  });
+
+  const undoRedo = action<WithUndo, UndoParams>((draftState) => {
+    const redoState = history.redo();
+    if (redoState) {
+      Object.assign(draftState, redoState);
+    }
+  });
+
   return {
     ...model,
     undoHistory: undoModel,
@@ -52,37 +77,12 @@ interface UndoParams {
   state: WithUndo;
 }
 
-const history = historyStore();
-const undoSave = action<WithUndo, UndoParams>((draftState, params) => {
-  const state = filterState(draftState as WithUndo, params);
-  history.save(state);
-});
-
-const undoReset = action<WithUndo, UndoParams>((draftState, params) => {
-  const state = filterState(draftState as WithUndo, params);
-  history.reset(state);
-});
-
-const undoUndo = action<WithUndo, UndoParams>((draftState, params) => {
-  const undoState = history.undo();
-  if (undoState) {
-    Object.assign(draftState, undoState);
-  }
-});
-
-const undoRedo = action<WithUndo, UndoParams>((draftState) => {
-  const redoState = history.redo();
-  if (redoState) {
-    Object.assign(draftState, redoState);
-  }
-});
-
 function filterState(draftState: WithUndo, params: UndoParams): AnyObject {
   if (draftState.computeds === undefined) {
     // consider this initialization only happens once, is there an init hook we could use instead?
     // LATER consider, what if the model is hot-reloaded?
     draftState.computeds = findGetters(params.state);
-  } 
+  }
   const computeds = draftState.computeds;
 
   // remove keys that shouldn't be saved in undo history (computeds, user filtered, and history state)
