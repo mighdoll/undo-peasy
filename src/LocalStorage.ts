@@ -11,7 +11,7 @@ const currentKey = keyPrefix + "state-current";
  * The oldest undo state is undo-redo-0
  */
 
-// for tests on nodejs
+// for tests on nodejs only, we define a localStorage
 if (typeof localStorage === "undefined") {
   global.localStorage = new LocalStorage("./tmp");
 }
@@ -26,18 +26,24 @@ export function save(state: {}): void {
   }
 }
 
-export function clear(state: {}): void {
+export function reset(state: {}): void {
   deleteStates(0);
   saveState(state, 0);
 }
 
 export function undo(): AnyObject | undefined {
   const currentDex = currentIndex();
-  if (!currentDex) {
+  if (currentDex === undefined || currentDex === 0) {
     return undefined;
   }
-  const indexString = (currentIndex -1).toString()  // TODO fixme
+  const indexString = (currentDex - 1).toString();
+  const state = localStorage.getItem(keyPrefix + indexString);
+  if (state === null) {
+    console.log("unspected null", indexString);
+    return undefined;
+  }
   localStorage.setItem(currentKey, indexString);
+  return JSON.parse(state);
 }
 
 export function redo(): AnyObject | undefined {
@@ -48,15 +54,6 @@ function saveState(state: AnyObject, index: number): void {
   const indexString = index.toString();
   localStorage.setItem(keyPrefix + indexString, JSON.stringify(state));
   localStorage.setItem(currentKey, indexString);
-}
-
-function saveFirstState(state: AnyObject): void {
-  localStorage.setItem(keyPrefix + "0", JSON.stringify(state));
-  resetCurrent();
-}
-
-function resetCurrent() {
-  localStorage.setItem(currentKey, "0");
 }
 
 function currentIndex(): number | undefined {

@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Action, action } from "easy-peasy";
 import { KeyPathFilter } from "./UndoRedoMiddleware";
 import { AnyObject, copyFiltered, findGetters } from "./Utils";
-import { saveAsCurrent } from "./LocalStorage";
+import * as undoLS from "./LocalStorage";
 
 /**
  * WithUndo defines actions and history state to support Undo/Redo.
@@ -39,13 +39,10 @@ export type ModelWithUndo<T> = {
   WithUndo;
 
 export interface UndoHistory {
-  undo: {}[];
-  redo: {}[];
-  current?: {};
   computeds?: string[][]; // paths of all computed properties in the model (not persisted in the history)
 }
 
-const undoModel: UndoHistory = { undo: [], redo: [] };
+const undoModel: UndoHistory = { };
 
 /** Used internally, to pass params and raw state from middleware config to action reducers.
  * Users of the actions do _not_ need to pass these parameters, they are attached by the middleware.
@@ -60,48 +57,30 @@ interface WithUndoHistory {
 }
 
 const undoSave = action<WithUndo, UndoParams>((draftState, params) => {
-  const history = draftState.undoHistory;
-  history.redo.length = 0;
-  if (history.current) {
-    history.undo.push(history.current);
-  }
-  saveCurrent(draftState as WithUndo, params);
+  const state = filterState(draftState as WithUndo, params);
+  undoLS.save(state);
 });
 
 const undoReset = action<WithUndo, UndoParams>((draftState, params) => {
-  const history = draftState.undoHistory;
-  history.redo.length = 0;
-  history.undo.length = 0;
-  saveCurrent(draftState as WithUndo, params);
+  const state = filterState(draftState as WithUndo, params);
+  undoLS.reset(state);
 });
 
 const undoUndo = action<WithUndo, UndoParams>((draftState, params) => {
-  const history = draftState.undoHistory;
-  const undoState = history.undo.pop();
+  const undoState = undoLS.undo();
   if (undoState) {
-    if (history.current) {
-      history.redo.push(history.current);
-    }
-    history.current = undoState;
-
     Object.assign(draftState, undoState);
   }
 });
 
 const undoRedo = action<WithUndo, UndoParams>((draftState) => {
-  const history = draftState.undoHistory;
-  const redoState = history.redo.pop();
+  const redoState = undoLS.redo();
   if (redoState) {
-    if (history.current) {
-      history.undo.push(history.current);
-    }
-    history.current = redoState;
-
     Object.assign(draftState, redoState);
   }
 });
 
-function saveCurrent(draftState: WithUndo, params: UndoParams) {
+function filterState(draftState: WithUndo, params: UndoParams): AnyObject {
   const history = draftState.undoHistory;
   if (!history.computeds) {
     // consider this initialization only happens once, is there an init hook we could use instead?
@@ -125,5 +104,5 @@ function saveCurrent(draftState: WithUndo, params: UndoParams) {
     }
   );
 
-  draftState.undoHistory.current = filteredState;
+  return filteredState;
 }
