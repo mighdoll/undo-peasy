@@ -1,7 +1,8 @@
 import { LocalStorage } from "node-localstorage";
 import { AnyObject } from "./Utils";
-const keyPrefix = "undo-redo-";
-const currentKey = keyPrefix + "state-current";
+
+export const keyPrefix = "undo-redo-";
+export const currentKey = keyPrefix + "state-current";
 
 /** we store a stack of undo/redo state objects
  * currentKey holds the index of the current state
@@ -16,9 +17,9 @@ if (typeof localStorage === "undefined") {
   global.localStorage = new LocalStorage("./tmp");
 }
 
-export function save(state: {}): void {
+export function save(state: AnyObject): void {
   const currentDex = currentIndex();
-  if (!currentDex) {
+  if (currentDex === undefined) {
     saveState(state, 0);
   } else {
     deleteStates(currentDex + 1);
@@ -26,7 +27,7 @@ export function save(state: {}): void {
   }
 }
 
-export function reset(state: {}): void {
+export function reset(state: AnyObject): void {
   deleteStates(0);
   saveState(state, 0);
 }
@@ -51,12 +52,14 @@ export function redo(): AnyObject | undefined {
 }
 
 function saveState(state: AnyObject, index: number): void {
+  console.log("save,  index:", index);
   const indexString = index.toString();
   localStorage.setItem(keyPrefix + indexString, JSON.stringify(state));
   localStorage.setItem(currentKey, indexString);
 }
 
-function currentIndex(): number | undefined {
+/** exported for testing */
+export function currentIndex(): number | undefined {
   const valueString = localStorage.getItem(currentKey);
   if (valueString) {
     return parseInt(valueString);
