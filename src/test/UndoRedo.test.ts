@@ -39,6 +39,8 @@ const viewModel: ViewModel = undoable({
 });
 
 function makeStore() {
+  localStorage.clear();
+
   const store = createStore(undoable(simpleModel), {
     middleware: [undoRedoMiddleware()],
   });
@@ -48,6 +50,7 @@ function makeStore() {
 }
 
 function makeViewStore() {
+  localStorage.clear();
   const store = createStore(undoable(viewModel), {
     middleware: [undoRedoMiddleware({ noSaveKeys, noSaveActions })],
   });
@@ -179,7 +182,7 @@ test("views actions are not saved", () => {
 });
 
 test("computed values are not saved", () => {
-  const { store, actions } = makeViewStore();
+  const { store } = makeViewStore();
   store.getState().countSquared.should.equal(49);
   const current = store.getState().undoHistory.current as any; //?
   Object.keys(current).includes("countSquared").should.equal(false);

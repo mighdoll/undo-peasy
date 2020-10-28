@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Action, action } from "easy-peasy";
 import { KeyPathFilter } from "./UndoRedoMiddleware";
 import { AnyObject, copyFiltered, findGetters } from "./Utils";
-import { saveCurrentState } from "./LocalStorage";
+import { saveAsCurrent } from "./LocalStorage";
 
 /**
  * WithUndo defines actions and history state to support Undo/Redo.
@@ -68,35 +68,6 @@ const undoSave = action<WithUndo, UndoParams>((draftState, params) => {
   saveCurrent(draftState as WithUndo, params);
 });
 
-function saveCurrent(draftState: WithUndo, params: UndoParams) {
-  const history = draftState.undoHistory;
-  if (!history.computeds) {
-    // consider this initialization only happens once, is there an init hook we could use instead?
-    // LATER consider, what if the model is hot-reloaded?
-    history.computeds = findGetters(params.state);
-  }
-  const computeds = history.computeds!;
-
-  // remove keys that shouldn't be saved in undo history (computeds, user filtered, and history state)
-  const filteredState: AnyObject = copyFiltered(
-    draftState,
-    (_value, key, path) => {
-      if (path.length === 0 && key === "undoHistory") {
-        return true;
-      }
-      const fullPath = path.concat([key]);
-      const isComputed = !!computeds.find((computedPath) =>
-        _.isEqual(fullPath, computedPath)
-      );
-      return isComputed || params.noSaveKeys(key, path);
-    }
-  );
-
-  saveCurrentState(filteredState);
-
-  draftState.undoHistory.current = filteredState;
-}
-
 const undoReset = action<WithUndo, UndoParams>((draftState, params) => {
   const history = draftState.undoHistory;
   history.redo.length = 0;
@@ -129,3 +100,30 @@ const undoRedo = action<WithUndo, UndoParams>((draftState) => {
     Object.assign(draftState, redoState);
   }
 });
+
+function saveCurrent(draftState: WithUndo, params: UndoParams) {
+  const history = draftState.undoHistory;
+  if (!history.computeds) {
+    // consider this initialization only happens once, is there an init hook we could use instead?
+    // LATER consider, what if the model is hot-reloaded?
+    history.computeds = findGetters(params.state);
+  }
+  const computeds = history.computeds!;
+
+  // remove keys that shouldn't be saved in undo history (computeds, user filtered, and history state)
+  const filteredState: AnyObject = copyFiltered(
+    draftState,
+    (_value, key, path) => {
+      if (path.length === 0 && key === "undoHistory") {
+        return true;
+      }
+      const fullPath = path.concat([key]);
+      const isComputed = !!computeds.find((computedPath) =>
+        _.isEqual(fullPath, computedPath)
+      );
+      return isComputed || params.noSaveKeys(key, path);
+    }
+  );
+
+  draftState.undoHistory.current = filteredState;
+}
