@@ -13,19 +13,20 @@ export const currentKey = keyPrefix + "state-current";
  * The oldest undo state is undo-redo-0
  */
 
-export interface historyStore {
+export interface HistoryStore {
   save: (state: AnyObject) => void;
   reset: (state: AnyObject) => void;
   undo: () => AnyObject | undefined;
   redo: () => AnyObject | undefined;
   _currentIndex: () => number | undefined;
   _allSaved: () => AnyObject[];
+  _erase:() => void;
 }
 
 let storages = 0;
 
 /** return a persistent store that holds undo/redo history */
-export function historyStore() {
+export function historyStore(): HistoryStore {
   const storage = getStorage();
 
   return {
@@ -35,6 +36,7 @@ export function historyStore() {
     redo,
     _currentIndex: currentIndex,
     _allSaved: allSaved,
+    _erase: erase,
   };
 
   function save(state: AnyObject): void {
@@ -79,7 +81,7 @@ export function historyStore() {
   }
 
   function currentIndex(): number | undefined {
-    const valueString = localStorage.getItem(currentKey);
+    const valueString = storage.getItem(currentKey);
     if (valueString) {
       return parseInt(valueString);
     } else {
@@ -89,7 +91,7 @@ export function historyStore() {
 
   function deleteStates(start: number): void {
     const key = keyPrefix + start;
-    const item = localStorage.getItem(key);
+    const item = storage.getItem(key);
     if (item) {
       storage.removeItem(key);
       deleteStates(start + 1);
@@ -106,6 +108,10 @@ export function historyStore() {
       }
     });
     return results;
+  }
+
+  function erase(): void {
+
   }
 }
 

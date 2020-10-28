@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Action, action } from "easy-peasy";
 import { KeyPathFilter } from "./UndoRedoMiddleware";
 import { AnyObject, copyFiltered, findGetters } from "./Utils";
-import { historyStore } from "./LocalStorage";
+import { HistoryStore, historyStore } from "./LocalStorage";
 
 /**
  * WithUndo defines actions and history state to support Undo/Redo.
@@ -23,6 +23,18 @@ export interface WithUndo extends HasComputeds {
  * @param model application model
  */
 export function undoable<M extends {}>(model: M): ModelWithUndo<M> {
+  const { model: modelWithUndo } = undoableModelAndHistory(model);
+  return modelWithUndo;
+}
+
+export interface ModelAndHistory<M> {
+  model: ModelWithUndo<M>;
+  history: HistoryStore;
+}
+
+export function undoableModelAndHistory<M extends {}>(
+  model: M
+): ModelAndHistory<M> {
   const history = historyStore();
   const undoSave = action<WithUndo, UndoParams>((draftState, params) => {
     const state = filterState(draftState as WithUndo, params);
@@ -48,7 +60,7 @@ export function undoable<M extends {}>(model: M): ModelWithUndo<M> {
     }
   });
 
-  return {
+  const modelWithUndo = {
     ...model,
     undoHistory: undoModel,
     undoSave,
@@ -56,6 +68,7 @@ export function undoable<M extends {}>(model: M): ModelWithUndo<M> {
     undoRedo,
     undoReset,
   };
+  return { model: modelWithUndo, history };
 }
 
 export type ModelWithUndo<T> = {
@@ -70,7 +83,7 @@ export interface HasComputeds {
 const undoModel: HasComputeds = {};
 
 /** Used internally, to pass params and raw state from middleware config to action reducers.
- * Users of the actions do _not_ need to pass these parameters, they are attached by the middleware.
+ * Users of the actions do _not_ pass these parameters, they are attached by the middleware.
  */
 interface UndoParams {
   noSaveKeys: KeyPathFilter;
