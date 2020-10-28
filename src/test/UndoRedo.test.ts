@@ -113,7 +113,7 @@ test("save two actions", () => {
   });
 });
 
-test.skip("undo an action", () => {
+test("undo an action", () => {
   withStore(({ store, history, actions }) => {
     actions.increment();
     actions.undoUndo();
@@ -123,18 +123,18 @@ test.skip("undo an action", () => {
   });
 });
 
-// test.skip("undo two actions", () => {
-//   withStore(({ store, actions }) => {
-//     actions.increment();
-//     actions.increment();
-//     actions.undoUndo();
-//     actions.undoUndo();
-//     store.getState().count.should.equal(0);
-//   });
-//   // const history = store.getState().undoHistory;
-//   // history.undo.length.should.equal(0);
-//   // (history.current as any).count.should.equal(0);
-// });
+test("undo two actions", () => {
+  withStore(({ store, actions }) => {
+    actions.increment();
+    actions.increment();
+    actions.undoUndo();
+    actions.undoUndo();
+    store.getState().count.should.equal(0);
+  });
+  // const history = store.getState().undoHistory;
+  // history.undo.length.should.equal(0);
+  // (history.current as any).count.should.equal(0);
+});
 
 // test.skip("two actions, then undo", () => {
 //   const { store, actions } = makeStore();
