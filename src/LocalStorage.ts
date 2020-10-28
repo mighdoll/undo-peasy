@@ -5,7 +5,7 @@ const currentStateKey = keyPrefix + currentSuffix;
 
 // for tests on nodejs
 if (typeof localStorage === "undefined") {
-  global.localStorage = new LocalStorage("./scratch");
+  global.localStorage = new LocalStorage("./tmp");
 }
 
 export function saveCurrentState(state: {}): void {

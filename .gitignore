@@ -7,3 +7,4 @@ web_modules/
 web/
 build/
 .yalc/
+tmp/
