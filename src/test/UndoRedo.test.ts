@@ -11,7 +11,7 @@ import {
   ValidActionProperties,
 } from "easy-peasy";
 import { enableES5 } from "immer";
-import { HistoryStore } from "../LocalStorage";
+import { HistoryStore } from "../HistoryStore";
 import { undoRedo as undoRedoMiddleware } from "../UndoRedoMiddleware";
 import { ModelWithUndo, undoableModelAndHistory } from "../Actions";
 import { AnyObject } from "../Utils";
