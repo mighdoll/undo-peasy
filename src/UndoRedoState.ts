@@ -108,9 +108,7 @@ function filterState(draftState: WithUndo, params: UndoParams): AnyObject {
       const isComputed = !!computeds.find((computedPath) =>
         _.isEqual(fullPath, computedPath)
       );
-      const result = isComputed || params.noSaveKeys(key, path);
-      console.log("filtering", fullPath, result);
-      return result;
+      return isComputed || params.noSaveKeys(key, path);
     }
   );
 

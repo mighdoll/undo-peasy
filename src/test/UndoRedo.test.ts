@@ -156,19 +156,30 @@ test("two actions, undo one", () => {
   });
 });
 
-test.skip("redo", () => {
+test("redo", () => {
   withStore(({ store, history, actions }) => {
     actions.increment();
     actions.increment();
     actions.increment();
+    store.getState().count.should.equal(3);
+    actions.undoUndo();
+    actions.undoUndo();
+    store.getState().count.should.equal(1);
+    actions.undoRedo();
     store.getState().count.should.equal(2);
-    actions.undoUndo();
-    actions.undoUndo();
-    store.getState().count.should.equal(0);
+
+    historyExpect(history, 4, 2);
+  });
+});
+
+test("redo unavailable", () => {
+  withStore(({ store, history, actions }) => {
+    actions.increment();
+    store.getState().count.should.equal(1);
+    historyExpect(history, 2, 1);
     actions.undoRedo();
     store.getState().count.should.equal(1);
-
-    historyExpect(history, 3, 1);
+    historyExpect(history, 2, 1);
   });
 });
 

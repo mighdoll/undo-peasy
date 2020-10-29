@@ -58,18 +58,28 @@ export function historyStore(): HistoryStore {
     if (currentDex === undefined || currentDex === 0) {
       return undefined;
     }
-    const indexString = (currentDex - 1).toString();
-    const state = storage.getItem(keyPrefix + indexString);
+    const undoDex = (currentDex - 1).toString();
+    const state = storage.getItem(keyPrefix + undoDex);
     if (state === null) {
-      console.log("unspected null", indexString);
+      console.log("unexpected null entry at index:", undoDex);
       return undefined;
     }
-    storage.setItem(currentKey, indexString);
+    storage.setItem(currentKey, undoDex);
     return JSON.parse(state);
   }
 
   function redo(): AnyObject | undefined {
-    return undefined;
+    const currentDex = currentIndex();
+    if (currentDex === undefined) {
+      return undefined;
+    }
+    const redoDex = (currentDex + 1).toString();
+    const state = storage.getItem(keyPrefix + redoDex);
+    if (state === null) {
+      return undefined;
+    }
+    storage.setItem(currentKey, redoDex);
+    return JSON.parse(state);
   }
 
   function saveState(state: AnyObject, index: number): void {
