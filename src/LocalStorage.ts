@@ -23,6 +23,7 @@ export interface HistoryStore {
   _erase: () => void;
 }
 
+localStorage.clear();
 /** return a persistent store that holds undo/redo history */
 export function historyStore(): HistoryStore {
   const storage = getStorage();
