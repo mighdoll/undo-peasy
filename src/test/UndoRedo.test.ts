@@ -12,7 +12,7 @@ import {
 } from "easy-peasy";
 import { enableES5 } from "immer";
 import { HistoryStore } from "../HistoryStore";
-import { undoRedo as undoRedoMiddleware } from "../UndoRedoMiddleware";
+import { undoRedo as undoRedoMiddleware } from "../Middleware";
 import { ModelWithUndo, undoableModelAndHistory } from "../Actions";
 import { AnyObject } from "../Utils";
 
