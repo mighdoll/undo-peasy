@@ -4,7 +4,6 @@ import {
   Action,
   ActionMapper,
   Computed,
-  computed,
   createStore,
   Store,
   ValidActionProperties,
@@ -12,12 +11,7 @@ import {
 import { enableES5 } from "immer";
 import { HistoryStore } from "../LocalStorage";
 import { undoRedo as undoRedoMiddleware } from "../UndoRedoMiddleware";
-import {
-  ModelWithUndo,
-  undoable,
-  undoableModelAndHistory,
-  WithUndo,
-} from "../UndoRedoState";
+import { ModelWithUndo, undoableModelAndHistory } from "../UndoRedoState";
 import { AnyObject } from "../Utils";
 
 enableES5();
@@ -96,12 +90,22 @@ function noSaveActions(actionType: string): boolean {
   return actionType.startsWith("@action.doubleView");
 }
 
+function historyExpect(
+  history: HistoryStore,
+  expectLength: number,
+  expectIndex: number
+): void {
+  const index = history._currentIndex()!;
+  const length = history._allSaved().length;
+  index.should.equal(expectIndex);
+  length.should.equal(expectLength);
+}
+
 test("save an action", () => {
   withStore(({ actions, history }) => {
     actions.increment();
 
-    history._currentIndex()!.should.equal(1);
-    history._allSaved().length.should.equal(2);
+    historyExpect(history, 2, 1);
   });
 });
 
@@ -109,8 +113,7 @@ test("save two actions", () => {
   withStore(({ actions, history }) => {
     actions.increment();
     actions.increment();
-    history._currentIndex()!.should.equal(2);
-    history._allSaved().length.should.equal(3);
+    historyExpect(history, 3, 2);
   });
 });
 
@@ -119,53 +122,46 @@ test("undo an action", () => {
     actions.increment();
     actions.undoUndo();
     store.getState().count.should.equal(0);
-    history._currentIndex()!.should.equal(0);
-    history._allSaved().length.should.equal(2);
+    historyExpect(history, 2, 0);
   });
 });
 
 test("undo two actions", () => {
-  withStore(({ store, actions }) => {
+  withStore(({ store, history, actions }) => {
     actions.increment();
     actions.increment();
     actions.undoUndo();
     actions.undoUndo();
     store.getState().count.should.equal(0);
+    historyExpect(history, 3, 0);
   });
-  // const history = store.getState().undoHistory;
-  // history.undo.length.should.equal(0);
-  // (history.current as any).count.should.equal(0);
 });
 
-// test.skip("two actions, then undo", () => {
-//   const { store, actions } = makeStore();
-//   actions.undoReset();
-//   actions.increment();
-//   actions.increment();
-//   actions.undoUndo();
-//   store.getState().count.should.equal(1);
-//   // const history = store.getState().undoHistory;
-//   // history.undo.length.should.equal(1);
-//   // history.redo.length.should.equal(1);
-//   // (history.current as any).count.should.equal(1);
-// });
+test("two actions, undo one", () => {
+  withStore(({ store, history, actions }) => {
+    actions.increment();
+    actions.increment();
+    actions.undoUndo();
+    store.getState().count.should.equal(1);
+    historyExpect(history, 3, 1);
+  });
+});
 
-// test.skip("redo", () => {
-//   const { store, actions } = makeStore();
-//   actions.increment();
-//   actions.increment();
-//   actions.increment();
-//   store.getState().count.should.equal(3);
-//   actions.undoUndo();
-//   actions.undoUndo();
-//   store.getState().count.should.equal(1);
-//   actions.undoRedo();
-//   store.getState().count.should.equal(2);
-//   // const history = store.getState().undoHistory;
-//   // history.undo.length.should.equal(2);
-//   // history.redo.length.should.equal(1);
-//   // (history.current as any).count.should.equal(2);
-// });
+test.skip("redo", () => {
+  withStore(({ store, history, actions }) => {
+    actions.increment();
+    actions.increment();
+    actions.increment();
+    store.getState().count.should.equal(3);
+    actions.undoUndo();
+    actions.undoUndo();
+    store.getState().count.should.equal(1);
+    actions.undoRedo();
+    store.getState().count.should.equal(2);
+
+    historyExpect(history, 4, 1);
+  });
+});
 
 // test.skip("undo empty doesn't crash", () => {
 //   const { actions } = makeStore();
