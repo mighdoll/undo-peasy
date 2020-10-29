@@ -231,7 +231,7 @@ test("views actions are not saved", () => {
 test("computed values are not saved", () => {
   withViewStore(({ store, history }) => {
     store.getState().countSquared.should.equal(49);
-    const savedState = history._getState(0)!; 
+    const savedState = history._getState(0)!;
     Object.keys(savedState).includes("countSquared").should.equal(false);
   });
 });
