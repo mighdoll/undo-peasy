@@ -64,8 +64,8 @@ interface StoreAndActions<M extends AnyObject> {
 }
 
 function withStore(fn: (storAndActions: StoreAndActions<Model>) => void) {
-  localStorage.clear();
   const { model, history } = undoableModelAndHistory(simpleModel);
+  history._erase();
   const store = createStore(model, {
     middleware: [undoRedoMiddleware()],
   });

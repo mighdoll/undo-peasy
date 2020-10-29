@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { LocalStorage } from "node-localstorage";
 import { AnyObject } from "./Utils";
 
 export const keyPrefix = "undo-redo-";
@@ -23,7 +22,6 @@ export interface HistoryStore {
   _erase: () => void;
 }
 
-localStorage.clear();
 /** return a persistent store that holds undo/redo history */
 export function historyStore(): HistoryStore {
   const storage = getStorage();
@@ -108,19 +106,11 @@ export function historyStore(): HistoryStore {
     return results;
   }
 
-  function erase(): void {}
+  function erase(): void {
+    storage.clear();
+  }
 }
 
-let storages = 0;
-
 function getStorage(): Storage {
-  // for tests on nodejs only, we define a unique localStorage for each test run.
-  if (typeof localStorage === "undefined") {
-    storages++;
-    const random = Math.floor(Math.random() * 10e8);
-    const storageName = `storage-${random}-${storages}`;
-    console.log("creating new storage:", storageName);
-    return new LocalStorage("./tmp/" + storageName);
-  }
-  return localStorage;
+  return localStorage;  // for now, just one store. (tests use one mocked store per test thread.)
 }
