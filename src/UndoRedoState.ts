@@ -62,7 +62,6 @@ export function undoableModelAndHistory<M extends {}>(
 
   const modelWithUndo = {
     ...model,
-    undoHistory: undoModel,
     undoSave,
     undoUndo,
     undoRedo,
@@ -77,7 +76,7 @@ export type ModelWithUndo<T> = {
   WithUndo;
 
 export interface HasComputeds {
-  computeds?: string[][]; // paths of all computed properties in the model (not persisted in the history)
+  _computeds?: string[][]; // paths of all computed properties in the model (not persisted in the history)
 }
 
 const undoModel: HasComputeds = {};
@@ -91,25 +90,27 @@ interface UndoParams {
 }
 
 function filterState(draftState: WithUndo, params: UndoParams): AnyObject {
-  if (draftState.computeds === undefined) {
+  if (draftState._computeds === undefined) {
     // consider this initialization only happens once, is there an init hook we could use instead?
     // LATER consider, what if the model is hot-reloaded?
-    draftState.computeds = findGetters(params.state);
+    draftState._computeds = findGetters(params.state);
   }
-  const computeds = draftState.computeds;
+  const computeds = draftState._computeds;
 
   // remove keys that shouldn't be saved in undo history (computeds, user filtered, and history state)
   const filteredState: AnyObject = copyFiltered(
     draftState,
     (_value, key, path) => {
-      if (path.length === 0 && key === "undoHistory") {
+      if (path.length === 0 && key === "_computeds") {
         return true;
       }
       const fullPath = path.concat([key]);
       const isComputed = !!computeds.find((computedPath) =>
         _.isEqual(fullPath, computedPath)
       );
-      return isComputed || params.noSaveKeys(key, path);
+      const result = isComputed || params.noSaveKeys(key, path);
+      console.log("filtering", fullPath, result);
+      return result;
     }
   );
 

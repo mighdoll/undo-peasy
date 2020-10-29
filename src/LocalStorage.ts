@@ -20,6 +20,7 @@ export interface HistoryStore {
   _currentIndex: () => number | undefined;
   _allSaved: () => AnyObject[];
   _erase: () => void;
+  _getState: (index: number) => AnyObject | undefined;
 }
 
 /** return a persistent store that holds undo/redo history */
@@ -34,6 +35,7 @@ export function historyStore(): HistoryStore {
     _currentIndex: currentIndex,
     _allSaved: allSaved,
     _erase: erase,
+    _getState: getState,
   };
 
   function save(state: AnyObject): void {
@@ -108,6 +110,14 @@ export function historyStore(): HistoryStore {
 
   function erase(): void {
     storage.clear();
+  }
+
+  function getState(index:number):AnyObject|undefined {
+    const item = storage.getItem(keyPrefix + index);
+    if (!item) {
+      return undefined;
+    }
+    return JSON.parse(item);
   }
 }
 
