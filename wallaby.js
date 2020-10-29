@@ -6,4 +6,5 @@ module.exports = () => ({
     { pattern: "**/src/**/*.test.ts", ignore: true },
   ],
   tests: ["src/**/*.test.ts"],
+  trace: true,
 });
