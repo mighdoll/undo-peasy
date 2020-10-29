@@ -5,7 +5,7 @@ const outDir = production ? "dist" : "web";
 
 function runBuild() {
   build({
-    entryPoints: ["./src/UndoRedoApi.ts"],
+    entryPoints: ["./src/Api.ts"],
     outdir: outDir,
     bundle: true,
     sourcemap: !production,
