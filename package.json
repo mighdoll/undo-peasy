@@ -3,9 +3,7 @@
   "version": "0.1.8",
   "main": "src/Api.ts",
   "dependencies": {
-    "easy-peasy": "4.1.0-beta.4",
-    "lodash": "^4.17.20",
-    "redux": "^4.0.5"
+    "lodash": "^4.17.20"
   },
   "scripts": {
     "test": "jest",
@@ -23,6 +21,7 @@
     "@typescript-eslint/parser": "^4.6.0",
     "chai": "^4.2.0",
     "chokidar": "^3.4.3",
+    "easy-peasy": "4.1.0-beta.4",
     "esbuild": "^0.8.0",
     "eslint": "^7.12.1",
     "eslint-config-prettier": "^6.15.0",
@@ -37,6 +36,7 @@
     "tys": "^0.2.5"
   },
   "peerDependencies": {
+    "easy-peasy": "4.1.0-beta.4",
     "immer": "^7.0.14",
     "react": "^16.13.1"
   },
