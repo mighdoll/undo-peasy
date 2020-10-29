@@ -122,7 +122,7 @@ export function historyStore(): HistoryStore {
     storage.clear();
   }
 
-  function getState(index:number):AnyObject|undefined {
+  function getState(index: number): AnyObject | undefined {
     const item = storage.getItem(keyPrefix + index);
     if (!item) {
       return undefined;
