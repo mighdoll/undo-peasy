@@ -112,5 +112,5 @@ export function historyStore(): HistoryStore {
 }
 
 function getStorage(): Storage {
-  return localStorage;  // for now, just one store. (tests use one mocked store per test thread.)
+  return localStorage; // for now, just one store. (tests use one mocked store per test thread.)
 }
