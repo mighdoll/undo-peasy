@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Action, action } from "easy-peasy";
-import { KeyPathFilter } from "./UndoRedoMiddleware";
+import { KeyPathFilter } from "./Middleware";
 import { AnyObject, copyFiltered, findGetters } from "./Utils";
 import { HistoryStore, historyStore } from "./HistoryStore";
 
