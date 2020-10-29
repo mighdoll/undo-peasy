@@ -3,7 +3,7 @@ import { replaceUndefined } from "./Utils";
 
 /*
 TODO 
- * add option for max number undo elements
+ * add option for max number undo elements.
 */
 
 export interface UndoRedoConfig {
@@ -30,7 +30,11 @@ export type KeyPathFilter = (key: string, path: string[]) => boolean;
  * It attaches the 'raw' state object. easy peasy normally sends only an immer
  * proxy of the raw state, and the proxy obscures the difference between computed
  * and regular properties.
- * At it attaches any user provided noSaveKeys filter.
+ * For undo/redo actions the middleware also attaches the user provided noSaveKeys 
+ * filter function. (Note that passing the filter function with every undo/redo action 
+ * is a bit inefficient. The thought is to be cleaner for the undo-peasy user 
+ * with the config in one place, rather than some config on the middleware and 
+ * some config in undoable())
  *
  * 2) for normal actions, the middeware dispatches an additional undoSave action to
  * follow the original action. The reducer for the undoSave action will save the state
