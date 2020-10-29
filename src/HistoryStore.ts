@@ -33,9 +33,9 @@ export function historyStore(): HistoryStore {
     undo,
     redo,
     _currentIndex: currentIndex,
-    _allSaved: allSaved,
-    _erase: erase,
-    _getState: getState,
+    _allSaved,
+    _erase,
+    _getState,
   };
 
   function save(state: AnyObject): void {
@@ -107,7 +107,7 @@ export function historyStore(): HistoryStore {
   }
 
   /** for testing */
-  function allSaved(): AnyObject[] {
+  function _allSaved(): AnyObject[] {
     const results: AnyObject[] = [];
     _.times(10).forEach((i) => {
       const item = storage.getItem(keyPrefix + i);
@@ -118,11 +118,11 @@ export function historyStore(): HistoryStore {
     return results;
   }
 
-  function erase(): void {
+  function _erase(): void {
     storage.clear();
   }
 
-  function getState(index: number): AnyObject | undefined {
+  function _getState(index: number): AnyObject | undefined {
     const item = storage.getItem(keyPrefix + index);
     if (!item) {
       return undefined;
