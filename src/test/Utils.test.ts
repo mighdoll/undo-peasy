@@ -16,7 +16,7 @@ test("findGetters", () => {
     },
   };
   const getters = findGetters(src);
-  const getterPaths = getters.map((path) => path.join(".")); //?
+  const getterPaths = getters.map((path) => path.join(".")); 
   getterPaths.includes("foo").should.be.true;
   getterPaths.includes("bar.gogo").should.be.true;
 });

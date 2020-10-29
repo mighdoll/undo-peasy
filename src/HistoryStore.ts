@@ -44,7 +44,11 @@ export function historyStore(): HistoryStore {
       saveState(state, 0);
     } else {
       deleteStates(currentDex + 1);
-      saveState(state, currentDex + 1);
+      const currentStateString = storage.getItem(keyPrefix + currentDex);
+      const stateString = JSON.stringify(state);
+      if (currentStateString !== stateString) {
+        saveStateString(stateString, currentDex + 1);
+      }
     }
   }
 
@@ -83,8 +87,12 @@ export function historyStore(): HistoryStore {
   }
 
   function saveState(state: AnyObject, index: number): void {
+    saveStateString(JSON.stringify(state), index);
+  }
+
+  function saveStateString(stateString: string, index: number): void {
     const indexString = index.toString();
-    storage.setItem(keyPrefix + indexString, JSON.stringify(state));
+    storage.setItem(keyPrefix + indexString, stateString);
     storage.setItem(currentKey, indexString);
   }
 

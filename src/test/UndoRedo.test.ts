@@ -105,9 +105,9 @@ function historyExpect(
   expectIndex: number
 ): void {
   const index = history._currentIndex()!;
-  const length = history._allSaved().length;
-  index.should.equal(expectIndex);
+  const length = history._allSaved().length; 
   length.should.equal(expectLength);
+  index.should.equal(expectIndex);
 }
 
 test("save an action", () => {
@@ -122,6 +122,7 @@ test("save two actions", () => {
   withStore(({ actions, history }) => {
     actions.increment();
     actions.increment();
+
     historyExpect(history, 3, 2);
   });
 });
@@ -130,6 +131,7 @@ test("undo an action", () => {
   withStore(({ store, history, actions }) => {
     actions.increment();
     actions.undoUndo();
+
     store.getState().count.should.equal(0);
     historyExpect(history, 2, 0);
   });
@@ -141,6 +143,7 @@ test("undo two actions", () => {
     actions.increment();
     actions.undoUndo();
     actions.undoUndo();
+
     store.getState().count.should.equal(0);
     historyExpect(history, 3, 0);
   });
@@ -151,8 +154,19 @@ test("two actions, undo one", () => {
     actions.increment();
     actions.increment();
     actions.undoUndo();
+
     store.getState().count.should.equal(1);
     historyExpect(history, 3, 1);
+  });
+});
+
+test("don't save duplicate state", () => {
+  withStore(({ store, history, actions }) => {
+    actions.increment();
+    store.getState().count.should.equal(1);
+    actions.undoSave();
+
+    historyExpect(history, 2, 1);
   });
 });
 
@@ -179,6 +193,7 @@ test("redo unavailable", () => {
     historyExpect(history, 2, 1);
     actions.undoRedo();
     store.getState().count.should.equal(1);
+
     historyExpect(history, 2, 1);
   });
 });
@@ -201,6 +216,7 @@ test("reset clears history", () => {
     actions.increment();
     actions.undoReset();
     store.getState().count.should.equal(2);
+
     historyExpect(history, 1, 0);
   });
 });
@@ -208,6 +224,7 @@ test("reset clears history", () => {
 test("views are not saved", () => {
   withViewStore(({ history }) => {
     const savedView = history._getState(0)?.view;
+
     assert(savedView === undefined);
   });
 });
@@ -217,6 +234,7 @@ test("views are restored by undo/redo", () => {
     actions.increment();
     actions.doubleView();
     actions.undoUndo();
+
     store.getState().view.should.equal(viewModel.view * 2);
   });
 });
@@ -224,6 +242,7 @@ test("views are restored by undo/redo", () => {
 test("views actions are not saved", () => {
   withViewStore(({ actions, history }) => {
     actions.doubleView();
+
     historyExpect(history, 1, 0);
   });
 });
