@@ -163,33 +163,27 @@ test.skip("redo", () => {
   });
 });
 
-// test.skip("undo empty doesn't crash", () => {
-//   const { actions } = makeStore();
-//   actions.undoUndo();
-// });
+test("undo empty doesn't crash", () => {
+  withStore(({ actions }) => {
+    actions.undoUndo();
+  });
+});
 
-// test.skip("undo empty doesn't crash", () => {
-//   const { actions } = makeStore();
-//   actions.undoRedo();
-// });
+test("redo empty doesn't crash", () => {
+  withStore(({ actions }) => {
+    actions.undoRedo();
+  });
+});
 
-// test.skip("reset clears history", () => {
-//   withStore(({ store, actions }) => {
-//     actions.increment();
-//     actions.increment();
-//     actions.undoReset();
-//     store.getState().count.should.equal(2);
-//     // undoLS.currentIndex()!.should.equal(0);
-//     actions.increment();
-//     store.getState().count.should.equal(3);
-//     actions.undoUndo();
-//     store.getState().count.should.equal(2);
-//   });
-// });
-
-// test.skip("don't save view keys", () => {
-//   const { actions } = makeStore();
-// });
+test("reset clears history", () => {
+  withStore(({ store, history, actions }) => {
+    actions.increment();
+    actions.increment();
+    actions.undoReset();
+    store.getState().count.should.equal(2);
+    historyExpect(history, 1, 0);
+  });
+});
 
 // test.skip("views are not saved", () => {
 //   const { store } = makeViewStore();
