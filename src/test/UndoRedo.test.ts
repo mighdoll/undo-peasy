@@ -13,7 +13,7 @@ import {
 import { enableES5 } from "immer";
 import { HistoryStore } from "../LocalStorage";
 import { undoRedo as undoRedoMiddleware } from "../UndoRedoMiddleware";
-import { ModelWithUndo, undoableModelAndHistory } from "../UndoRedoState";
+import { ModelWithUndo, undoableModelAndHistory } from "../Actions";
 import { AnyObject } from "../Utils";
 
 enableES5();
