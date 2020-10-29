@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Action, action } from "easy-peasy";
 import { KeyPathFilter } from "./UndoRedoMiddleware";
 import { AnyObject, copyFiltered, findGetters } from "./Utils";
-import { HistoryStore, historyStore } from "./LocalStorage";
+import { HistoryStore, historyStore } from "./HistoryStore";
 
 /**
  * WithUndo defines actions and history state to support Undo/Redo.
