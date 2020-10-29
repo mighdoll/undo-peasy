@@ -74,7 +74,9 @@ function withStore(fn: (storAndActions: StoreAndHistory<Model>) => void) {
   }
 }
 
-function withViewStore(fn: (storAndActions: StoreAndHistory<Model>) => void) {
+function withViewStore(
+  fn: (storAndActions: StoreAndHistory<ViewModel>) => void
+) {
   const { model, history } = undoableModelAndHistory(viewModel);
   history._erase();
   const store = createStore(model, {
@@ -87,7 +89,6 @@ function withViewStore(fn: (storAndActions: StoreAndHistory<Model>) => void) {
   } finally {
     history._erase();
   }
-
 }
 
 function noSaveKeys(key: string): boolean {
@@ -103,8 +104,8 @@ function historyExpect(
   expectLength: number,
   expectIndex: number
 ): void {
-  const index = history._currentIndex()!; 
-  const length = history._allSaved().length; 
+  const index = history._currentIndex()!;
+  const length = history._allSaved().length;
   index.should.equal(expectIndex);
   length.should.equal(expectLength);
 }
@@ -200,23 +201,26 @@ test("views are not saved", () => {
   });
 });
 
-// test.skip("views are restored by undo/redo", () => {
-//   const { store, actions } = makeViewStore();
-//   actions.increment();
-//   actions.doubleView();
-//   actions.undoUndo();
-//   store.getState().view.should.equal(viewModel.view * 2);
-// });
+test("views are restored by undo/redo", () => {
+  withViewStore(({ actions, store }) => {
+    actions.increment();
+    actions.doubleView();
+    actions.undoUndo();
+    store.getState().view.should.equal(viewModel.view * 2);
+  });
+});
 
-// test.skip("views actions are not saved", () => {
-//   const { store, actions } = makeViewStore();
-//   actions.doubleView();
-//   // store.getState().undoHistory.undo.length.should.equal(0);
-// });
+test("views actions are not saved", () => {
+  withViewStore(({ actions, history }) => {
+    actions.doubleView();
+    historyExpect(history, 1, 0);
+  });
+});
 
-// test.skip("computed values are not saved", () => {
-//   const { store } = makeViewStore();
-//   store.getState().countSquared.should.equal(49);
-//   // const current = store.getState().undoHistory.current as any; //?
-//   // Object.keys(current).includes("countSquared").should.equal(false);
-// });
+test("computed values are not saved", () => {
+  withViewStore(({ store, history }) => {
+    store.getState().countSquared.should.equal(49);
+    const savedState = history._getState(0)!; 
+    Object.keys(savedState).includes("countSquared").should.equal(false);
+  });
+});
