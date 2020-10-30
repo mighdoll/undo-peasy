@@ -4,12 +4,16 @@ import { AnyObject } from "./Utils";
 export const keyPrefix = "undo-redo-";
 export const currentKey = keyPrefix + "state-current";
 
-/** we store a stack of undo/redo state objects
- * currentKey holds the index of the current state
- * indices smaller than currentKey are undo history, larger indices are redo states.
+/** Store a stack of undo/redo state objects in localStorage.
  *
- * The current state is undo-redo-{currentKey}
- * The oldest undo state is undo-redo-0
+ * Each undo redo state is stored in a separate key/value.
+ * The oldest undo state is stored with the key: "undo-redo-0",
+ * more recent states are "-1", "-2", etc.
+ *
+ * The current state is stored in the key "undo-redo-state-current"
+ *
+ * keys with indices smaller than the current state hold undo states,
+ * keys with larger indices hold redo states.
  */
 
 export interface HistoryStore {
@@ -17,6 +21,8 @@ export interface HistoryStore {
   reset: (state: AnyObject) => void;
   undo: () => AnyObject | undefined;
   redo: () => AnyObject | undefined;
+
+  // functions with an _ prefix are exposed for testing, but not intended for public use
   _currentIndex: () => number | undefined;
   _allSaved: () => AnyObject[];
   _erase: () => void;
