@@ -1,26 +1,28 @@
-Undo/Redo support for [easy peasy](https://easy-peasy.now.sh/).
+Undo/Redo support for [easy peasy](https://easy-peasy.now.sh/). 
 
-_`undo-peasy` depends on a version of easy-peasy at least 4.1.0. It's currently
-tested with 4.1.0-beta.4 _
+`undo-peasy` 
+* automatically saves a history of state changes made in your application. 
+* provides ready to use undo and redo actions.
 
 ## Usage
 
-1. Attach `undoRedoMiddleWare` in `createStore`.
+1. Attach `undoRedo` middlware in `createStore`. 
+The middleware will automatically save every state change made to an `undoable` model.
     ```
     const store = createStore(appModel, {
       middleware: [undoRedo()],
     });
     ```
-1. If using typescript, the root application model should extend `WithUndo`. 
-`WithUndo` will add types for undo actions and undo history to your root model.
+1. If using typescript, extend `WithUndo` in the root application model. 
+`WithUndo` will add types for undo actions and metadata.
     ```
       interface Model extends WithUndo {
         count: number;
         increment: Action<Model>;
       }
     ```
-1. Wrap the root application instance in `undoable`. 
-`undoable()` will make undo actions available on your root model.
+1. Use `undoable` to wrap the root application model instance. 
+`undoable()` will make undo/redo actions available and save state changes forwarded by the middleware.
     ```
     const appModel: Model = undoable({
       count: 0,
@@ -45,5 +47,8 @@ undoSave is generated automatically by the middleware, but in rare cases it's us
 ## Configuration
 The `undoRedo()` middleware function accepts an optional configuration object.
 * `noSaveActions` - a function that tells undoRedo to not save certain actions to undo/redo history.
-* `noSaveKeys` - a function tthat tells undoRedo not to save certain keys inside the state model 
+* `noSaveKeys` - a function that tells undoRedo not to save certain keys inside the state model 
 to undo/redo history. e.g. view state in the model.
+
+
+History is persisted in the browser's localStorage.
