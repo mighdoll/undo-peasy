@@ -13,7 +13,11 @@ import {
 import { enableES5 } from "immer";
 import { HistoryStore } from "../HistoryStore";
 import { undoRedo as undoRedoMiddleware } from "../Middleware";
-import { ModelWithUndo, undoableModelAndHistory } from "../Actions";
+import {
+  HistoryOptions,
+  ModelWithUndo,
+  undoableModelAndHistory,
+} from "../Actions";
 import { AnyObject } from "../Utils";
 
 enableES5();
@@ -59,8 +63,14 @@ interface StoreAndHistory<M extends AnyObject> {
   history: HistoryStore;
 }
 
-function withStore(fn: (storeAndHistory: StoreAndHistory<Model>) => void) {
-  const { model, history } = undoableModelAndHistory(simpleModel);
+function withStore(
+  fn: (storeAndHistory: StoreAndHistory<Model>) => void,
+  historyOptions?: HistoryOptions
+) {
+  const { model, history } = undoableModelAndHistory(
+    simpleModel,
+    historyOptions
+  );
   history._erase();
   const store = createStore(model, {
     middleware: [undoRedoMiddleware()],
@@ -253,4 +263,20 @@ test("computed values are not saved", () => {
     const savedState = history._getState(0)!;
     Object.keys(savedState).includes("countSquared").should.equal(false);
   });
+});
+
+test("maxHistory can simply limit size", () => {
+  withStore(
+    ({ actions, history }) => {
+      actions.increment();
+      history._currentIndex()!.should.equal(1);
+      history._oldestIndex()!.should.equal(0);
+      expect(history._getState(0)).toBeDefined();
+      actions.increment();
+      history._currentIndex()!.should.equal(2);
+      expect(history._getState(0)).toBeUndefined();
+      history._oldestIndex()!.should.equal(1);
+    },
+    { maxHistory: 2 }
+  );
 });

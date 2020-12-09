@@ -31,6 +31,7 @@ export interface HistoryStore {
 
   // functions with an _ prefix are exposed for testing, but not intended for public use
   _currentIndex: () => number | undefined;
+  _oldestIndex: () => number | undefined;
   _allSaved: () => AnyObject[];
   _erase: () => void;
   _getState: (index: number) => AnyObject | undefined;
@@ -49,6 +50,7 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
     undo,
     redo,
     _currentIndex: currentIndex,
+    _oldestIndex: oldestIndex,
     _allSaved,
     _erase,
     _getState,
@@ -61,13 +63,13 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
       saveState(state, 0);
       storage.setItem(oldestKey, "0");
     } else {
-      deleteStates(currentDex + 1);
-      const currentStateString = storage.getItem(keyPrefix + currentDex);
-      const stateString = JSON.stringify(state);
-      if (currentStateString !== stateString) {
-        saveStateString(stateString, currentDex + 1);
-      }
-      const size = currentDex + 1 - oldestDex;
+      const newDex = saveStateIfNew(state, currentDex);
+
+      // delete now invalid redo states
+      deleteStates(newDex + 1);
+
+      // limit growth of old states
+      const size = newDex - oldestDex + 1;
       if (size > maxHistory) {
         deleteOldest(oldestDex);
       }
@@ -125,7 +127,7 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
   }
 
   function saveStateString(stateString: string, index: number): void {
-    const indexString = index.toString();
+    const indexString = index.toString(); 
     storage.setItem(keyPrefix + indexString, stateString);
     storage.setItem(currentKey, indexString);
   }
@@ -160,14 +162,16 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
 
   /** delete single oldest state */
   function deleteOldest(oldestDex: number): void {
-    console.log("TODO: delete oldest", oldestDex);
+    storage.removeItem(keyPrefix + oldestDex);
+    const newOldest = (oldestDex + 1).toString();
+    storage.setItem(oldestKey, newOldest);
   }
 
   /** for testing */
   function _allSaved(): AnyObject[] {
     const results: AnyObject[] = [];
     _.times(10).forEach((i) => {
-      const item = storage.getItem(keyPrefix + i);
+      const item = storage.getItem(keyPrefix + i); 
       if (item) {
         results.push(JSON.parse(item));
       }
