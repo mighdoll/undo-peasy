@@ -112,6 +112,18 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
     saveStateString(JSON.stringify(state), index);
   }
 
+  function saveStateIfNew(state: AnyObject, currentDex: number): number {
+    const currentStateString = storage.getItem(keyPrefix + currentDex);
+    const stateString = JSON.stringify(state);
+    if (currentStateString !== stateString) {
+      const newDex = currentDex + 1; 
+      saveStateString(stateString, newDex); 
+      return newDex;
+    } else {
+      return currentDex;
+    }
+  }
+
   function saveStateString(stateString: string, index: number): void {
     const indexString = index.toString();
     storage.setItem(keyPrefix + indexString, stateString);
