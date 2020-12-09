@@ -59,7 +59,7 @@ interface StoreAndHistory<M extends AnyObject> {
   history: HistoryStore;
 }
 
-function withStore(fn: (storAndActions: StoreAndHistory<Model>) => void) {
+function withStore(fn: (storeAndHistory: StoreAndHistory<Model>) => void) {
   const { model, history } = undoableModelAndHistory(simpleModel);
   history._erase();
   const store = createStore(model, {
@@ -75,7 +75,7 @@ function withStore(fn: (storAndActions: StoreAndHistory<Model>) => void) {
 }
 
 function withViewStore(
-  fn: (storAndActions: StoreAndHistory<ViewModel>) => void
+  fn: (storeAndHistory: StoreAndHistory<ViewModel>) => void
 ) {
   const { model, history } = undoableModelAndHistory(viewModel);
   history._erase();
@@ -105,7 +105,7 @@ function historyExpect(
   expectIndex: number
 ): void {
   const index = history._currentIndex()!;
-  const length = history._allSaved().length; 
+  const length = history._allSaved().length;
   length.should.equal(expectLength);
   index.should.equal(expectIndex);
 }
