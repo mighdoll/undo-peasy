@@ -4,6 +4,7 @@ import { AnyObject } from "./Utils";
 
 export const keyPrefix = "undo-redo-";
 export const currentKey = keyPrefix + "state-current";
+export const oldestKey = keyPrefix + "state-oldest";
 
 /** Store a stack of undo/redo state objects in localStorage.
  *
@@ -12,6 +13,11 @@ export const currentKey = keyPrefix + "state-current";
  * more recent states are "-1", "-2", etc.
  *
  * The current state is stored in the key "undo-redo-state-current"
+ * The oldest state is stored in the key "undo-redo-state-oldest"
+ *
+ * If the number of saved states would exceed maxHistory, the oldest
+ * state is dropped. (e.g. after dropping one state, the oldest state
+ * becomes "undo-redo-1".)
  *
  * keys with indices smaller than the current state hold undo states,
  * keys with larger indices hold redo states.
@@ -50,14 +56,20 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
 
   function save(state: AnyObject): void {
     const currentDex = currentIndex();
+    const oldestDex = oldestIndex() || 0;
     if (currentDex === undefined) {
       saveState(state, 0);
+      storage.setItem(oldestKey, "0");
     } else {
       deleteStates(currentDex + 1);
       const currentStateString = storage.getItem(keyPrefix + currentDex);
       const stateString = JSON.stringify(state);
       if (currentStateString !== stateString) {
         saveStateString(stateString, currentDex + 1);
+      }
+      const size = currentDex + 1 - oldestDex;
+      if (size > maxHistory) {
+        deleteOldest(oldestDex);
       }
     }
   }
@@ -115,6 +127,16 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
     }
   }
 
+  function oldestIndex(): number | undefined {
+    const valueString = storage.getItem(oldestKey);
+    if (valueString) {
+      return parseInt(valueString);
+    } else {
+      return undefined;
+    }
+  }
+
+  /** delete all states newer than start */
   function deleteStates(start: number): void {
     const key = keyPrefix + start;
     const item = storage.getItem(key);
@@ -122,6 +144,11 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
       storage.removeItem(key);
       deleteStates(start + 1);
     }
+  }
+
+  /** delete single oldest state */
+  function deleteOldest(oldestDex: number): void {
+    console.log("TODO: delete oldest", oldestDex);
   }
 
   /** for testing */
