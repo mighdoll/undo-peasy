@@ -9,7 +9,7 @@ export interface UndoRedoConfig {
   noSaveKeys?: KeyPathFilter;
 }
 
-export const undoDefaults = {
+const undoDefaults = {
   noSaveActions: (_str: string) => false,
   noSaveKeys: (_str: string, _path: string[]) => false,
 };
