@@ -5,18 +5,18 @@ import { AnyObject, copyFiltered, findGetters } from "./Utils";
 import { HistoryStore, historyStore } from "./HistoryStore";
 
 /** Implementation strategy overview for undo/redo
- * 
- * Add easy-peasy actions for undo and redo. (Also add actions for reset and save, though these 
+ *
+ * Add easy-peasy actions for undo and redo. (Also add actions for reset and save, though these
  * aren't typically needed by users.)
- * 
+ *
  * Store a stack of undo/current/redo states. These are stored as json
  * strings in the browser's localStorage key value store.
- * 
- * Middleware to automatically trigger the save action after other 
+ *
+ * Middleware to automatically trigger the save action after other
  * easy-peasy or redux actions.
- * 
+ *
  * Note that computed properties and view properties specified by the programmer are not
- * saved. Computed and view properties are merged into the current app state 
+ * saved. Computed and view properties are merged into the current app state
  * on undo/redo.
  */
 
@@ -33,14 +33,19 @@ export interface WithUndo extends HasComputeds {
   undoRedo: Action<WithUndo, UndoParams | void>;
 }
 
+export interface HistoryOptions {
+  /** save no more than this many undo states */
+  maxHistory?: number;
+}
+
 /**
  * extend a model instance with undo actions and metadata
  *
  * The root application model should be wrapped in undoable().
  * @param model application model
  */
-export function undoable<M extends {}>(model: M): ModelWithUndo<M> {
-  const { model: modelWithUndo } = undoableModelAndHistory(model);
+export function undoable<M extends {}>(model: M, historyOptions?:HistoryOptions): ModelWithUndo<M> {
+  const { model: modelWithUndo } = undoableModelAndHistory(model, historyOptions);
   return modelWithUndo;
 }
 
@@ -55,9 +60,10 @@ export interface ModelAndHistory<M> {
  * the history store.
  */
 export function undoableModelAndHistory<M extends {}>(
-  model: M
+  model: M,
+  historyOptions?:HistoryOptions
 ): ModelAndHistory<M> {
-  const history = historyStore();
+  const history = historyStore(historyOptions);
   const undoSave = action<WithUndo, UndoParams>((draftState, params) => {
     const state = filterState(draftState as WithUndo, params);
     history.save(state);

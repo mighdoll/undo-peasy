@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { HistoryOptions } from "./Actions";
 import { AnyObject } from "./Utils";
 
 export const keyPrefix = "undo-redo-";
@@ -29,8 +30,11 @@ export interface HistoryStore {
   _getState: (index: number) => AnyObject | undefined;
 }
 
+const defaultMaxHistory = 250;
+
 /** return a persistent store that holds undo/redo history */
-export function historyStore(): HistoryStore {
+export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
+  const maxHistory = historyOptions?.maxHistory || defaultMaxHistory;
   const storage = getStorage();
 
   return {
