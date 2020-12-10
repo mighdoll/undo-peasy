@@ -1,6 +1,6 @@
 {
   "name": "undo-peasy",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "main": "src/Api.ts",
   "dependencies": {
     "lodash": "^4.17.20"
