@@ -37,6 +37,8 @@ export type KeyPathFilter = (key: string, path: string[]) => boolean;
 export interface HistoryOptions {
   /** save no more than this many undo states */
   maxHistory?: number;
+
+  /** don't save state keys matching this filter (e.g. transient view in the state) */
   noSaveKeys?: KeyPathFilter;
 }
 
