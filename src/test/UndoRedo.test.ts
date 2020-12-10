@@ -280,3 +280,19 @@ test("maxHistory can simply limit size", () => {
     { maxHistory: 2 }
   );
 });
+
+test("maxHistory works with redo too", () => {
+  withStore(
+    ({ actions, history }) => {
+      actions.increment();
+      actions.increment();
+      actions.undoUndo();
+      actions.undoUndo();
+      actions.increment();
+      historyExpect(history, 2, 2);
+      expect(history._getState(0)).toBeUndefined();
+      history._oldestIndex()!.should.equal(1);
+    },
+    { maxHistory: 2 }
+  );
+});
