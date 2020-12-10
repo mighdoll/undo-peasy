@@ -66,7 +66,7 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
       const newDex = saveStateIfNew(state, currentDex);
 
       // delete now invalid redo states
-      deleteStates(newDex + 1);
+      deleteNewest(newDex + 1);
 
       // limit growth of old states
       const size = newDex - oldestDex + 1;
@@ -77,7 +77,7 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
   }
 
   function reset(state: AnyObject): void {
-    deleteStates(0);
+    deleteNewest(0);
     saveState(state, 0);
   }
 
@@ -86,7 +86,7 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
     if (currentDex === undefined || currentDex === 0) {
       return undefined;
     }
-    const undoDex = (currentDex - 1).toString();
+    const undoDex = (currentDex - 1).toString(); 
     const state = storage.getItem(keyPrefix + undoDex);
     if (state === null) {
       console.log("unexpected null entry at index:", undoDex);
@@ -151,12 +151,12 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
   }
 
   /** delete all states newer than start */
-  function deleteStates(start: number): void {
+  function deleteNewest(start: number): void {
     const key = keyPrefix + start;
     const item = storage.getItem(key);
     if (item) {
-      storage.removeItem(key);
-      deleteStates(start + 1);
+      storage.removeItem(key); 
+      deleteNewest(start + 1);
     }
   }
 
@@ -170,8 +170,8 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
       return;
     }
     const newOldest = Math.max(0, currentDex - maxHistory +1); 
-    for (let i = oldestDex; i < newOldest; i++) {
-      storage.removeItem(keyPrefix + i);
+    for (let i = oldestDex; i < newOldest; i++) { 
+      storage.removeItem(keyPrefix + i);  
     }
     storage.setItem(oldestKey, newOldest.toString());
   }
