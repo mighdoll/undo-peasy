@@ -50,5 +50,9 @@ The `undoRedo()` middleware function accepts an optional configuration object.
 * `noSaveKeys` - a function that tells undoRedo not to save certain keys inside the state model 
 to undo/redo history. e.g. view state in the model.
 
+The `undoable()` middleware function accepts an optional configuration object.
+* `maxHistory` - maximum number of history states to save. The oldest states are dropped to prevent the history from growing without bounds.
+
+
 
 History is persisted in the browser's localStorage.
