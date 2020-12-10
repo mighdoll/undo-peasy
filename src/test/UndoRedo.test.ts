@@ -288,11 +288,14 @@ test("maxHistory works with redo too", () => {
       actions.increment();
       actions.undoUndo();
       actions.undoUndo();
+      historyExpect(history, 3, 0);
       actions.increment();
-      historyExpect(history, 2, 2);
+      actions.increment();
+      actions.increment();
+      historyExpect(history, 3, 3);
       expect(history._getState(0)).toBeUndefined();
       history._oldestIndex()!.should.equal(1);
     },
-    { maxHistory: 2 }
+    { maxHistory: 3 }
   );
 });
