@@ -47,11 +47,11 @@ undoSave is generated automatically by the middleware, but in rare cases it's us
 ## Configuration
 The `undoRedo()` middleware function accepts an optional configuration object.
 * `noSaveActions` - a function that tells undoRedo to not save certain actions to undo/redo history.
-* `noSaveKeys` - a function that tells undoRedo not to save certain keys inside the state model 
-to undo/redo history. e.g. view state in the model.
 
 The `undoable()` middleware function accepts an optional configuration object.
 * `maxHistory` - maximum number of history states to save. The oldest states are dropped to prevent the history from growing without bounds.
+* `noSaveKeys` - a function that tells undoRedo not to save certain keys inside the state model 
+to undo/redo history. e.g. view state in the model.
 
 
 

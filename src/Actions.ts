@@ -1,8 +1,7 @@
-import _ from "lodash";
 import { Action, action } from "easy-peasy";
-import { KeyPathFilter } from "./Middleware";
-import { AnyObject, copyFiltered, findGetters } from "./Utils";
+import _ from "lodash";
 import { HistoryStore, historyStore } from "./HistoryStore";
+import { AnyObject, copyFiltered, findGetters } from "./Utils";
 
 /** Implementation strategy overview for undo/redo
  *
@@ -33,9 +32,12 @@ export interface WithUndo extends HasComputeds {
   undoRedo: Action<WithUndo, UndoParams | void>;
 }
 
+export type KeyPathFilter = (key: string, path: string[]) => boolean;
+
 export interface HistoryOptions {
   /** save no more than this many undo states */
   maxHistory?: number;
+  noSaveKeys?: KeyPathFilter;
 }
 
 /**
@@ -44,8 +46,14 @@ export interface HistoryOptions {
  * The root application model should be wrapped in undoable().
  * @param model application model
  */
-export function undoable<M extends {}>(model: M, historyOptions?:HistoryOptions): ModelWithUndo<M> {
-  const { model: modelWithUndo } = undoableModelAndHistory(model, historyOptions);
+export function undoable<M extends {}>(
+  model: M,
+  historyOptions?: HistoryOptions
+): ModelWithUndo<M> {
+  const { model: modelWithUndo } = undoableModelAndHistory(
+    model,
+    historyOptions
+  );
   return modelWithUndo;
 }
 
@@ -54,6 +62,7 @@ export interface ModelAndHistory<M> {
   history: HistoryStore;
 }
 
+const skipNoKeys = (_str: string, _path: string[]) => false;
 /** (api for testing)
  *
  * extend a model instance with undo actions and metadata, and also return
@@ -61,16 +70,17 @@ export interface ModelAndHistory<M> {
  */
 export function undoableModelAndHistory<M extends {}>(
   model: M,
-  historyOptions?:HistoryOptions
+  historyOptions?: HistoryOptions
 ): ModelAndHistory<M> {
   const history = historyStore(historyOptions);
+  const noSaveKeys = historyOptions?.noSaveKeys || skipNoKeys;
   const undoSave = action<WithUndo, UndoParams>((draftState, params) => {
-    const state = filterState(draftState as WithUndo, params);
+    const state = filterState(draftState as WithUndo, params, noSaveKeys);
     history.save(state);
   });
 
   const undoReset = action<WithUndo, UndoParams>((draftState, params) => {
-    const state = filterState(draftState as WithUndo, params);
+    const state = filterState(draftState as WithUndo, params, noSaveKeys);
     history.reset(state);
   });
 
@@ -111,7 +121,6 @@ export interface HasComputeds {
  * Users of the actions do _not_ pass these parameters, they are attached by the middleware.
  */
 interface UndoParams {
-  noSaveKeys: KeyPathFilter;
   state: WithUndo;
 }
 
@@ -120,7 +129,11 @@ interface UndoParams {
  *
  * In particular, remove computed properties and properties that match a user filter for e.g. interim view state.
  */
-function filterState(draftState: WithUndo, params: UndoParams): AnyObject {
+function filterState(
+  draftState: WithUndo,
+  params: UndoParams,
+  noSaveKeys: KeyPathFilter
+): AnyObject {
   if (draftState._computeds === undefined) {
     // consider this initialization only happens once, is there an init hook we could use instead?
     // LATER, consider what if the model is hot-reloaded?
@@ -139,7 +152,7 @@ function filterState(draftState: WithUndo, params: UndoParams): AnyObject {
       const isComputed = !!computeds.find((computedPath) =>
         _.isEqual(fullPath, computedPath)
       );
-      return isComputed || params.noSaveKeys(key, path);
+      return isComputed || noSaveKeys(key, path);
     }
   );
 

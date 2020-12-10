@@ -4,18 +4,13 @@ import { replaceUndefined } from "./Utils";
 export interface UndoRedoConfig {
   /** function called to identify actions that should not be saved in undo history */
   noSaveActions?: ActionFilter;
-
-  /** function called to identify keys that should not be saved in undo history */
-  noSaveKeys?: KeyPathFilter;
 }
 
 const undoDefaults = {
   noSaveActions: (_str: string) => false,
-  noSaveKeys: (_str: string, _path: string[]) => false,
 };
 
 export type ActionFilter = (actionType: string) => boolean;
-export type KeyPathFilter = (key: string, path: string[]) => boolean;
 
 /** @returns redux middleware to support undo/redo actions.
  *
@@ -36,7 +31,7 @@ export type KeyPathFilter = (key: string, path: string[]) => boolean;
  * in undo history.
  */
 export function undoRedo(config: UndoRedoConfig = {}): Middleware {
-  const { noSaveActions, noSaveKeys } = replaceUndefined(config, undoDefaults);
+  const { noSaveActions } = replaceUndefined(config, undoDefaults);
   const result = (api: MiddlewareAPI) => (next: Dispatch<AnyAction>) => (
     action: AnyAction
   ) => {
@@ -44,7 +39,7 @@ export function undoRedo(config: UndoRedoConfig = {}): Middleware {
       return next(action);
     } else if (undoAction(action.type)) {
       const state = api.getState();
-      const enhancedAction = { ...action, payload: { noSaveKeys, state } };
+      const enhancedAction = { ...action, payload: { state } };
       return next(enhancedAction);
     } else {
       const result = next(action);

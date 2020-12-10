@@ -87,10 +87,10 @@ function withStore(
 function withViewStore(
   fn: (storeAndHistory: StoreAndHistory<ViewModel>) => void
 ) {
-  const { model, history } = undoableModelAndHistory(viewModel);
+  const { model, history } = undoableModelAndHistory(viewModel, { noSaveKeys });
   history._erase();
   const store = createStore(model, {
-    middleware: [undoRedoMiddleware({ noSaveKeys, noSaveActions })],
+    middleware: [undoRedoMiddleware({ noSaveActions })],
   });
   const actions = store.getActions();
   actions.undoSave();
