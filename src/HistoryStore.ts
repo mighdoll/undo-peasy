@@ -1,3 +1,4 @@
+import { compare } from "fast-json-patch";
 import _ from "lodash";
 import { HistoryOptions } from "./Actions";
 import { AnyObject } from "./Utils";
@@ -26,8 +27,8 @@ export const oldestKey = keyPrefix + "state-oldest";
 export interface HistoryStore {
   save: (state: AnyObject) => void;
   reset: (state: AnyObject) => void;
-  undo: () => AnyObject | undefined;
-  redo: () => AnyObject | undefined;
+  undo: (state: AnyObject) => AnyObject | undefined;
+  redo: (state: AnyObject) => AnyObject | undefined;
 
   // functions with an _ prefix are exposed for testing, but not intended for public use
   _currentIndex: () => number | undefined;
@@ -43,6 +44,7 @@ const defaultMaxHistory = 250;
 export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
   const maxHistory = historyOptions?.maxHistory || defaultMaxHistory;
   const storage = getStorage();
+  const logDiffs = historyOptions?.logDiffs || false;
 
   return {
     save,
@@ -62,6 +64,9 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
     if (currentDex === undefined) {
       saveState(state, 0);
       storage.setItem(oldestKey, "0");
+      if (logDiffs) {
+        console.log("save\n", state);
+      }
     } else {
       const newDex = saveStateIfNew(state, currentDex);
 
@@ -79,35 +84,48 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
   function reset(state: AnyObject): void {
     deleteNewest(0);
     saveState(state, 0);
+    if (logDiffs) {
+      console.log("reset\n", state);
+    }
   }
 
-  function undo(): AnyObject | undefined {
+  function undo(state: AnyObject): AnyObject | undefined {
     const currentDex = currentIndex();
     if (currentDex === undefined || currentDex === 0) {
       return undefined;
     }
-    const undoDex = (currentDex - 1).toString(); 
-    const state = storage.getItem(keyPrefix + undoDex);
-    if (state === null) {
+    const undoDex = (currentDex - 1).toString();
+    const stateString = storage.getItem(keyPrefix + undoDex);
+    if (stateString === null) {
       console.log("unexpected null entry at index:", undoDex);
       return undefined;
     }
     storage.setItem(currentKey, undoDex);
-    return JSON.parse(state);
+    const undoState = JSON.parse(stateString);
+    if (logDiffs) {
+      const diff = compare(state, undoState);
+      console.log("undo\n", ...diff);
+    }
+    return undoState;
   }
 
-  function redo(): AnyObject | undefined {
+  function redo(state: AnyObject): AnyObject | undefined {
     const currentDex = currentIndex();
     if (currentDex === undefined) {
       return undefined;
     }
     const redoDex = (currentDex + 1).toString();
-    const state = storage.getItem(keyPrefix + redoDex);
-    if (state === null) {
+    const stateString = storage.getItem(keyPrefix + redoDex);
+    if (stateString === null) {
       return undefined;
     }
     storage.setItem(currentKey, redoDex);
-    return JSON.parse(state);
+    const redoState = JSON.parse(stateString);
+    if (logDiffs) {
+      const diff = compare(state, redoState);
+      console.log("redo\n", ...diff);
+    }
+    return redoState;
   }
 
   function saveState(state: AnyObject, index: number): void {
@@ -118,11 +136,25 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
     const currentStateString = storage.getItem(keyPrefix + currentDex);
     const stateString = JSON.stringify(state);
     if (currentStateString !== stateString) {
+      logDiff(state, currentStateString);
       const newDex = currentDex + 1;
       saveStateString(stateString, newDex);
+
       return newDex;
     } else {
       return currentDex;
+    }
+  }
+
+  function logDiff(newState: AnyObject, oldStateString: string | null) {
+    if (logDiffs) {
+      if (oldStateString) {
+        const oldState = JSON.parse(oldStateString);
+        const diff = compare(oldState, newState);
+        console.log("save:\n", ...diff);
+      } else {
+        console.log("save:\n", newState);
+      }
     }
   }
 
@@ -155,7 +187,7 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
     const key = keyPrefix + start;
     const item = storage.getItem(key);
     if (item) {
-      storage.removeItem(key); 
+      storage.removeItem(key);
       deleteNewest(start + 1);
     }
   }
@@ -169,9 +201,9 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
       console.log("returning early...");
       return;
     }
-    const newOldest = Math.max(0, currentDex - maxHistory +1); 
-    for (let i = oldestDex; i < newOldest; i++) { 
-      storage.removeItem(keyPrefix + i);  
+    const newOldest = Math.max(0, currentDex - maxHistory + 1);
+    for (let i = oldestDex; i < newOldest; i++) {
+      storage.removeItem(keyPrefix + i);
     }
     storage.setItem(oldestKey, newOldest.toString());
   }

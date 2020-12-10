@@ -40,6 +40,9 @@ export interface HistoryOptions {
 
   /** don't save state keys matching this filter (e.g. transient view in the state) */
   noSaveKeys?: KeyPathFilter;
+
+  /** set to true to log each saved state */
+  logDiffs?: boolean;
 }
 
 /**
@@ -87,14 +90,14 @@ export function undoableModelAndHistory<M extends {}>(
   });
 
   const undoUndo = action<WithUndo, UndoParams>((draftState, params) => {
-    const undoState = history.undo();
+    const undoState = history.undo(draftState);
     if (undoState) {
       Object.assign(draftState, undoState);
     }
   });
 
   const undoRedo = action<WithUndo, UndoParams>((draftState) => {
-    const redoState = history.redo();
+    const redoState = history.redo(draftState);
     if (redoState) {
       Object.assign(draftState, redoState);
     }
