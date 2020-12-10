@@ -586,6 +586,13 @@
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
   integrity sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g==
 
+"@types/fast-json-patch@^1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@types/fast-json-patch/-/fast-json-patch-1.1.5.tgz#931989a4e87ab84a8c36fdaeb04a93d302ef1cd9"
+  integrity sha1-kxmJpOh6uEqMNv2usEqT0wLvHNk=
+  dependencies:
+    fast-json-patch "*"
+
 "@types/graceful-fs@^4.1.2":
   version "4.1.3"
   resolved "https://registry.yarnpkg.com/@types/graceful-fs/-/graceful-fs-4.1.3.tgz#039af35fe26bec35003e8d86d2ee9c586354348f"
@@ -1785,6 +1792,11 @@ extsprintf@^1.2.0:
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
   integrity sha1-4mifjzVvrWLMplo6kcXfX5VRaS8=
 
+fast-deep-equal@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-2.0.1.tgz#7b05218ddf9667bf7f370bf7fdb2cb15fdd0aa49"
+  integrity sha1-ewUhjd+WZ79/Nwv3/bLLFf3Qqkk=
+
 fast-deep-equal@^3.1.1:
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz#3a7d56b559d6cbc3eb512325244e619a65c6c525"
@@ -1806,6 +1818,18 @@ fast-glob@^3.1.1:
     merge2 "^1.3.0"
     micromatch "^4.0.2"
     picomatch "^2.2.1"
+
+fast-json-patch@*:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/fast-json-patch/-/fast-json-patch-2.2.1.tgz#18150d36c9ab65c7209e7d4eb113f4f8eaabe6d9"
+  integrity sha512-4j5uBaTnsYAV5ebkidvxiLUYOwjQ+JSFljeqfTxCrH9bDmlCQaOJFS84oDJ2rAXZq2yskmk3ORfoP9DCwqFNig==
+  dependencies:
+    fast-deep-equal "^2.0.1"
+
+fast-json-patch@^3.0.0-1:
+  version "3.0.0-1"
+  resolved "https://registry.yarnpkg.com/fast-json-patch/-/fast-json-patch-3.0.0-1.tgz#4c68f2e7acfbab6d29d1719c44be51899c93dabb"
+  integrity sha512-6pdFb07cknxvPzCeLsFHStEy+MysPJPgZQ9LbQ/2O67unQF93SNqfdSqnPPl71YMHX+AD8gbl7iuoGFzHEdDuw==
 
 fast-json-stable-stringify@2.x, fast-json-stable-stringify@^2.0.0:
   version "2.1.0"
