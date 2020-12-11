@@ -1,25 +1,7 @@
 import "chai/register-should";
 import _ from "lodash";
-import { findGetters, copyFiltered } from "../Utils";
+import { copyFiltered } from "../Utils";
 
-test("findGetters", () => {
-  const src = {
-    get foo() {
-      return 7;
-    },
-    hoo: "hood",
-    bar: {
-      get gogo() {
-        return 9;
-      },
-      boo: "bood",
-    },
-  };
-  const getters = findGetters(src);
-  const getterPaths = getters.map((path) => path.join(".")); 
-  getterPaths.includes("foo").should.be.true;
-  getterPaths.includes("bar.gogo").should.be.true;
-});
 
 test("remove functions", () => {
   const src: any = {

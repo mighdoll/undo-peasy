@@ -18,7 +18,7 @@ import {
   ModelWithUndo,
   undoableModelAndHistory,
 } from "../Actions";
-import { AnyObject } from "../Utils";
+import { AnyObject, findModelComputeds } from "../Utils";
 
 enableES5();
 
@@ -298,4 +298,9 @@ test("maxHistory works with redo too", () => {
     },
     { maxHistory: 3 }
   );
+});
+
+
+test("findModelComputeds", () => {
+  findModelComputeds(viewModel).should.deep.equal([["countSquared"]]);
 });

@@ -1,7 +1,7 @@
 import { Action, action } from "easy-peasy";
 import _ from "lodash";
 import { HistoryStore, historyStore } from "./HistoryStore";
-import { AnyObject, copyFiltered, findGetters } from "./Utils";
+import { AnyObject, copyFiltered, findModelComputeds } from "./Utils";
 
 /** Implementation strategy overview for undo/redo
  *
@@ -25,11 +25,11 @@ import { AnyObject, copyFiltered, findGetters } from "./Utils";
  *
  * The root application model interface should extend WithUndo.
  */
-export interface WithUndo extends HasComputeds {
-  undoSave: Action<WithUndo, UndoParams | void>;
-  undoReset: Action<WithUndo, UndoParams | void>;
-  undoUndo: Action<WithUndo, UndoParams | void>;
-  undoRedo: Action<WithUndo, UndoParams | void>;
+export interface WithUndo {
+  undoSave: Action<WithUndo>;
+  undoReset: Action<WithUndo>;
+  undoUndo: Action<WithUndo>;
+  undoRedo: Action<WithUndo>;
 }
 
 export type KeyPathFilter = (key: string, path: string[]) => boolean;
@@ -77,26 +77,27 @@ export function undoableModelAndHistory<M extends {}>(
   model: M,
   historyOptions?: HistoryOptions
 ): ModelAndHistory<M> {
+  const computeds = findModelComputeds(model);
   const history = historyStore(historyOptions);
   const noSaveKeys = historyOptions?.noSaveKeys || skipNoKeys;
-  const undoSave = action<WithUndo, UndoParams>((draftState, params) => {
-    const state = filterState(draftState as WithUndo, params, noSaveKeys);
+  const undoSave = action<WithUndo>((draftState) => {
+    const state = filterState(draftState as WithUndo, noSaveKeys, computeds);
     history.save(state);
   });
 
-  const undoReset = action<WithUndo, UndoParams>((draftState, params) => {
-    const state = filterState(draftState as WithUndo, params, noSaveKeys);
+  const undoReset = action<WithUndo>((draftState) => {
+    const state = filterState(draftState as WithUndo, noSaveKeys, computeds);
     history.reset(state);
   });
 
-  const undoUndo = action<WithUndo, UndoParams>((draftState, params) => {
+  const undoUndo = action<WithUndo>((draftState) => {
     const undoState = history.undo(draftState);
     if (undoState) {
       Object.assign(draftState, undoState);
     }
   });
 
-  const undoRedo = action<WithUndo, UndoParams>((draftState) => {
+  const undoRedo = action<WithUndo>((draftState) => {
     const redoState = history.redo(draftState);
     if (redoState) {
       Object.assign(draftState, redoState);
@@ -118,17 +119,6 @@ export type ModelWithUndo<T> = {
 } &
   WithUndo;
 
-export interface HasComputeds {
-  _computeds?: string[][]; // paths of all computed properties in the model (not persisted in the history)
-}
-
-/** Used internally, to pass params and raw state from middleware config to action reducers.
- * Users of the actions do _not_ pass these parameters, they are attached by the middleware.
- */
-interface UndoParams {
-  state: WithUndo;
-}
-
 /**
  * Return a copy of state, removing properties that don't need to be persisted.
  *
@@ -136,23 +126,13 @@ interface UndoParams {
  */
 function filterState(
   draftState: WithUndo,
-  params: UndoParams,
-  noSaveKeys: KeyPathFilter
+  noSaveKeys: KeyPathFilter,
+  computeds: string[][]
 ): AnyObject {
-  if (draftState._computeds === undefined) {
-    // consider this initialization only happens once, is there an init hook we could use instead?
-    // LATER, consider what if the model is hot-reloaded?
-    draftState._computeds = findGetters(params.state);
-  }
-  const computeds = draftState._computeds;
-
   // remove keys that shouldn't be saved in undo history (computeds, user filtered, and computeds metadata)
   const filteredState: AnyObject = copyFiltered(
     draftState,
     (_value, key, path) => {
-      if (path.length === 0 && key === "_computeds") {
-        return true;
-      }
       const fullPath = path.concat([key]);
       const isComputed = !!computeds.find((computedPath) =>
         _.isEqual(fullPath, computedPath)

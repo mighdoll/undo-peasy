@@ -35,12 +35,8 @@ export function undoRedo(config: UndoRedoConfig = {}): Middleware {
   const result = (api: MiddlewareAPI) => (next: Dispatch<AnyAction>) => (
     action: AnyAction
   ) => {
-    if (noSaveActions(action.type) || alwaysSkipAction(action.type)) {
+    if (noSaveActions(action.type) || alwaysSkipAction(action.type) || undoAction(action.type)) {
       return next(action);
-    } else if (undoAction(action.type)) {
-      const state = api.getState();
-      const enhancedAction = { ...action, payload: { state } };
-      return next(enhancedAction);
     } else {
       const result = next(action);
       api.dispatch({ type: "@action.undoSave" });

@@ -56,18 +56,17 @@ export interface AnyObject {
   [key: string]: any;
 }
 
-/** @return the paths of to all getter properties nested in a source object */
-export function findGetters(
+/** @return the paths of all computed properties nested in an easy peasy model instance */
+export function findModelComputeds(
   src: AnyObject,
   pathPrefix: string[] = []
 ): string[][] {
   const result = Object.entries(src).flatMap(([key, value]) => {
-    if (isGetter(src, key)) {
+    if (isComputedField(value)) {
       const getter = [pathPrefix.concat([key])];
       return getter;
     } else if (_.isPlainObject(value)) {
-      const found = findGetters(value, pathPrefix.concat([key]));
-      return found;
+      return findModelComputeds(value, pathPrefix.concat([key]));
     } else {
       return [];
     }
@@ -75,10 +74,12 @@ export function findGetters(
   return result;
 }
 
-function isGetter(src: {}, key: string): boolean {
-  const desc = Object.getOwnPropertyDescriptor(src, key);
-  if (desc && desc.get) {
-    return true;
+export const computedSymbol = "$ep_c";
+
+function isComputedField(value: unknown): boolean {
+  if (_.isPlainObject(value)) {
+    return (value as AnyObject)[computedSymbol] !== undefined;
+  } else {
+    return false;
   }
-  return false;
 }
