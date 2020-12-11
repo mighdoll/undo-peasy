@@ -75,13 +75,15 @@ export function historyStore(
     } else {
       const newDex = saveStateIfNew(state, currentDex);
 
-      // delete now invalid redo states
-      deleteNewest(newDex + 1);
+      if (newDex !== currentDex) {
+        // delete now invalid redo states
+        deleteNewest(newDex + 1);
 
-      // limit growth of old states
-      const size = newDex - oldestDex + 1;
-      if (size > maxHistory) {
-        deleteOldest(maxHistory);
+        // limit growth of old states
+        const size = newDex - oldestDex + 1;
+        if (size > maxHistory) {
+          deleteOldest(maxHistory);
+        }
       }
     }
   }
