@@ -78,15 +78,16 @@ export function undoableModelAndHistory<M extends {}>(
   historyOptions?: HistoryOptions
 ): ModelAndHistory<M> {
   const computeds = findModelComputeds(model);
-  const history = historyStore(historyOptions);
+  const history = historyStore(filterState, historyOptions);
   const noSaveKeys = historyOptions?.noSaveKeys || skipNoKeys;
+
   const undoSave = action<WithUndo>((draftState) => {
-    const state = filterState(draftState as WithUndo, noSaveKeys, computeds);
+    const state = filterState(draftState);
     history.save(state);
   });
 
   const undoReset = action<WithUndo>((draftState) => {
-    const state = filterState(draftState as WithUndo, noSaveKeys, computeds);
+    const state = filterState(draftState);
     history.reset(state);
   });
 
@@ -112,34 +113,30 @@ export function undoableModelAndHistory<M extends {}>(
     undoReset,
   };
   return { model: modelWithUndo, history };
+
+  /**
+   * Return a copy of state, removing properties that don't need to be persisted.
+   *
+   * In particular, remove computed properties and properties that match a user filter for e.g. interim view state.
+   */
+  function filterState(draftState: AnyObject): AnyObject {
+    // remove keys that shouldn't be saved in undo history (computeds, user filtered, and computeds metadata)
+    const filteredState: AnyObject = copyFiltered(
+      draftState,
+      (_value, key, path) => {
+        const fullPath = path.concat([key]);
+        const isComputed = !!computeds.find((computedPath) =>
+          _.isEqual(fullPath, computedPath)
+        );
+        return isComputed || noSaveKeys(key, path);
+      }
+    );
+
+    return filteredState;
+  }
 }
 
 export type ModelWithUndo<T> = {
   [P in keyof T]: T[P];
 } &
   WithUndo;
-
-/**
- * Return a copy of state, removing properties that don't need to be persisted.
- *
- * In particular, remove computed properties and properties that match a user filter for e.g. interim view state.
- */
-function filterState(
-  draftState: WithUndo,
-  noSaveKeys: KeyPathFilter,
-  computeds: string[][]
-): AnyObject {
-  // remove keys that shouldn't be saved in undo history (computeds, user filtered, and computeds metadata)
-  const filteredState: AnyObject = copyFiltered(
-    draftState,
-    (_value, key, path) => {
-      const fullPath = path.concat([key]);
-      const isComputed = !!computeds.find((computedPath) =>
-        _.isEqual(fullPath, computedPath)
-      );
-      return isComputed || noSaveKeys(key, path);
-    }
-  );
-
-  return filteredState;
-}

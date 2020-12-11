@@ -40,8 +40,13 @@ export interface HistoryStore {
 
 const defaultMaxHistory = 250;
 
-/** return a persistent store that holds undo/redo history */
-export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
+/** return a persistent store that holds undo/redo history
+ * @param toPlainState remove computed and view fields from a state object
+ */
+export function historyStore(
+  toPlainState: (state: AnyObject) => AnyObject,
+  historyOptions?: HistoryOptions
+): HistoryStore {
   const maxHistory = historyOptions?.maxHistory || defaultMaxHistory;
   const storage = getStorage();
   const logDiffs = historyOptions?.logDiffs || false;
@@ -103,7 +108,8 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
     storage.setItem(currentKey, undoDex);
     const undoState = JSON.parse(stateString);
     if (logDiffs) {
-      const diff = compare(state, undoState);
+      const rawState = toPlainState(state);
+      const diff = compare(rawState, undoState);
       console.log("undo\n", ...diff);
     }
     return undoState;
@@ -122,7 +128,8 @@ export function historyStore(historyOptions?: HistoryOptions): HistoryStore {
     storage.setItem(currentKey, redoDex);
     const redoState = JSON.parse(stateString);
     if (logDiffs) {
-      const diff = compare(state, redoState);
+      const rawState = toPlainState(state);
+      const diff = compare(rawState, redoState);
       console.log("redo\n", ...diff);
     }
     return redoState;
