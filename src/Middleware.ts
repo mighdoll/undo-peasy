@@ -1,6 +1,7 @@
 import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from "redux";
 import { replaceUndefined } from "./Utils";
 
+// TODO drop this and just use undoable() config
 export interface UndoRedoConfig {
   /** function called to identify actions that should not be saved in undo history */
   noSaveActions?: ActionFilter;

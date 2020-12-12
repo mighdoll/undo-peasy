@@ -45,7 +45,7 @@ export interface HistoryOptions<M extends AnyObject> {
   /** set to true to log each saved state */
   logDiffs?: boolean;
 
-  /**  */
+  /** return true for actions that should not be saved into undo history */
   skipAction?: ActionStateFilter<State<M>>;
 }
 
