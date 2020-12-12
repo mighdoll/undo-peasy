@@ -91,6 +91,7 @@ export function historyStore(
   function reset(state: AnyObject): void {
     deleteNewest(0);
     saveState(state, 0);
+    storage.setItem(oldestKey, "0");
     if (logDiffs) {
       console.log("reset\n", state);
     }

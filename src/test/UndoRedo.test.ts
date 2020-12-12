@@ -76,7 +76,7 @@ function withStore(
     middleware: [undoRedoMiddleware()],
   });
   const actions = store.getActions();
-  actions.undoSave();
+  actions.undoReset();
   try {
     fn({ store, actions, history });
   } finally {
@@ -93,7 +93,7 @@ function withViewStore(
     middleware: [undoRedoMiddleware({ noSaveActions })],
   });
   const actions = store.getActions();
-  actions.undoSave();
+  actions.undoReset();
   try {
     fn({ store, actions, history });
   } finally {
