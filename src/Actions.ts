@@ -1,7 +1,8 @@
-import { Action, action } from "easy-peasy";
+import { Action, action, State } from "easy-peasy";
 import _ from "lodash";
 import { HistoryStore, historyStore } from "./HistoryStore";
 import { AnyObject, copyFiltered, findModelComputeds } from "./Utils";
+import { AnyAction } from "redux";
 
 /** Implementation strategy overview for undo/redo
  *
@@ -26,7 +27,7 @@ import { AnyObject, copyFiltered, findModelComputeds } from "./Utils";
  * The root application model interface should extend WithUndo.
  */
 export interface WithUndo {
-  undoSave: Action<WithUndo>;
+  undoSave: Action<WithUndo, AnyAction>;
   undoReset: Action<WithUndo>;
   undoUndo: Action<WithUndo>;
   undoRedo: Action<WithUndo>;
@@ -34,7 +35,7 @@ export interface WithUndo {
 
 export type KeyPathFilter = (key: string, path: string[]) => boolean;
 
-export interface HistoryOptions {
+export interface HistoryOptions<M extends AnyObject> {
   /** save no more than this many undo states */
   maxHistory?: number;
 
@@ -43,17 +44,25 @@ export interface HistoryOptions {
 
   /** set to true to log each saved state */
   logDiffs?: boolean;
+
+  /**  */
+  skipAction?: ActionStateFilter<State<M>>;
 }
 
+export type ActionStateFilter<M extends AnyObject> = (
+  state: State<M>,
+  action: AnyAction
+) => boolean;
+
 /**
- * extend a model instance with undo actions and metadata
+ * Extend a model instance with undo actions and metadata
  *
  * The root application model should be wrapped in undoable().
  * @param model application model
  */
-export function undoable<M extends {}>(
+export function undoable<M extends AnyObject>(
   model: M,
-  historyOptions?: HistoryOptions
+  historyOptions?: HistoryOptions<M>
 ): ModelWithUndo<M> {
   const { model: modelWithUndo } = undoableModelAndHistory(
     model,
@@ -68,22 +77,26 @@ export interface ModelAndHistory<M> {
 }
 
 const skipNoKeys = (_str: string, _path: string[]) => false;
-/** (api for testing)
+
+/** (internal api for undoable(), exposes more for testing)
  *
  * extend a model instance with undo actions and metadata, and also return
  * the history store.
  */
 export function undoableModelAndHistory<M extends {}>(
   model: M,
-  historyOptions?: HistoryOptions
+  historyOptions?: HistoryOptions<M>
 ): ModelAndHistory<M> {
   const computeds = findModelComputeds(model);
   const history = historyStore(filterState, historyOptions);
   const noSaveKeys = historyOptions?.noSaveKeys || skipNoKeys;
+  const skipAction = historyOptions?.skipAction || (() => false);
 
-  const undoSave = action<WithUndo>((draftState) => {
+  const undoSave = action<WithUndo, AnyAction>((draftState, prevAction) => {
     const state = filterState(draftState);
-    history.save(state);
+    if (!skipAction(state as any, prevAction)) {
+      history.save(state);
+    }
   });
 
   const undoReset = action<WithUndo>((draftState) => {
@@ -112,6 +125,7 @@ export function undoableModelAndHistory<M extends {}>(
     undoRedo,
     undoReset,
   };
+
   return { model: modelWithUndo, history };
 
   /**

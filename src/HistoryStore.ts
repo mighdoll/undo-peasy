@@ -43,9 +43,9 @@ const defaultMaxHistory = 250;
 /** return a persistent store that holds undo/redo history
  * @param toPlainState remove computed and view fields from a state object
  */
-export function historyStore(
+export function historyStore<M extends AnyObject>(
   toPlainState: (state: AnyObject) => AnyObject,
-  historyOptions?: HistoryOptions
+  historyOptions?: HistoryOptions<M>
 ): HistoryStore {
   const maxHistory = historyOptions?.maxHistory || defaultMaxHistory;
   const storage = getStorage();

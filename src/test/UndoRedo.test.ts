@@ -7,6 +7,7 @@ import {
   computed,
   Computed,
   createStore,
+  State,
   Store,
   ValidActionProperties,
 } from "easy-peasy";
@@ -19,6 +20,7 @@ import {
   undoableModelAndHistory,
 } from "../Actions";
 import { AnyObject, findModelComputeds } from "../Utils";
+import { AnyAction } from "redux";
 
 enableES5();
 
@@ -65,7 +67,7 @@ interface StoreAndHistory<M extends AnyObject> {
 
 function withStore(
   fn: (storeAndHistory: StoreAndHistory<Model>) => void,
-  historyOptions?: HistoryOptions
+  historyOptions?: HistoryOptions<Model>
 ) {
   const { model, history } = undoableModelAndHistory(
     simpleModel,
@@ -174,7 +176,7 @@ test("don't save duplicate state", () => {
   withStore(({ store, history, actions }) => {
     actions.increment();
     store.getState().count.should.equal(1);
-    actions.undoSave();
+    actions.undoSave({ type: "do_nada" });
 
     historyExpect(history, 2, 1);
   });
@@ -300,7 +302,28 @@ test("maxHistory works with redo too", () => {
   );
 });
 
-
 test("findModelComputeds", () => {
   findModelComputeds(viewModel).should.deep.equal([["countSquared"]]);
+});
+
+test("actionStateFilter", () => {
+  withStore(
+    ({ actions, history }) => {
+      actions.increment();
+      historyExpect(history, 2, 1);
+      actions.increment();
+      historyExpect(history, 3, 2);
+      actions.increment();
+      historyExpect(history, 3, 2);
+    },
+    { skipAction }
+  );
+
+  function skipAction(state: State<Model>, action: AnyAction): boolean {
+    action.type.should.equal("@action.increment");
+    if (state.count > 2) {
+      return true;
+    }
+    return false;
+  }
 });
