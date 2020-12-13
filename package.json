@@ -1,6 +1,6 @@
 {
   "name": "undo-peasy",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "main": "src/Api.ts",
   "dependencies": {
     "fast-json-patch": "^3.0.0-1",
