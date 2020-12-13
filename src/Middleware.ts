@@ -1,18 +1,6 @@
 import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from "redux";
 import { replaceUndefined } from "./Utils";
 
-// TODO drop this and just use undoable() config
-export interface UndoRedoConfig {
-  /** function called to identify actions that should not be saved in undo history */
-  noSaveActions?: ActionFilter;
-}
-
-const undoDefaults = {
-  noSaveActions: (_str: string) => false,
-};
-
-export type ActionFilter = (actionType: string) => boolean;
-
 /** @returns redux middleware to support undo/redo actions.
  *
  * The middleware does two things:
@@ -31,16 +19,11 @@ export type ActionFilter = (actionType: string) => boolean;
  * follow the original action. The reducer for the undoSave action will save the state
  * in undo history.
  */
-export function undoRedo(config: UndoRedoConfig = {}): Middleware {
-  const { noSaveActions } = replaceUndefined(config, undoDefaults);
+export function undoRedo(): Middleware {
   const result = (api: MiddlewareAPI) => (next: Dispatch<AnyAction>) => (
     action: AnyAction
   ) => {
-    if (
-      noSaveActions(action.type) ||
-      alwaysSkipAction(action.type) ||
-      undoAction(action.type)
-    ) {
+    if (alwaysSkipAction(action.type) || undoAction(action.type)) {
       return next(action);
     } else {
       const result = next(action);

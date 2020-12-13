@@ -92,7 +92,7 @@ function withViewStore(
   const { model, history } = undoableModelAndHistory(viewModel, { noSaveKeys });
   history._erase();
   const store = createStore(model, {
-    middleware: [undoRedoMiddleware({ noSaveActions })],
+    middleware: [undoRedoMiddleware()],
   });
   const actions = store.getActions();
   actions.undoReset();
@@ -105,10 +105,6 @@ function withViewStore(
 
 function noSaveKeys(key: string): boolean {
   return key === "view";
-}
-
-function noSaveActions(actionType: string): boolean {
-  return actionType.startsWith("@action.doubleView");
 }
 
 function historyExpect(
