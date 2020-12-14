@@ -73,19 +73,6 @@ export function undoable<M extends AnyObject>(
   return modelWithUndo;
 }
 
-export function useGroupUndo<T>(): any {
-  return function groupUndo<T>(fn: () => T): T {
-    // undoPause();
-    let result: T;
-    try {
-      result = fn();
-    } finally {
-      // undoContinue();
-    }
-    return result;
-  };
-}
-
 export interface EnrichedModel<M> {
   model: ModelWithUndo<M>;
   history: HistoryStore;
