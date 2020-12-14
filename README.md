@@ -18,7 +18,7 @@ Undo/Redo support for [easy peasy](https://easy-peasy.now.sh/).
    ` const appModel: Model = undoable({ count: 0, increment: action((state) => { state.count++; }), }); `
 1. Profit
    ```
-   const undoAction = useStoreActions((actions) => actions.undoUndo);
+   const undo = useStoreActions((actions) => actions.undoUndo);
    ```
 
 ## Supported Actions
@@ -27,11 +27,11 @@ Undo/Redo support for [easy peasy](https://easy-peasy.now.sh/).
 - **`undoRedo`** - restore state to the most recently undone version.
 - `undoReset` - erases saved undo/redo history and saves the current state.
 - `undoSave` - save current application state to undo history.
-  undoSave is generated automatically by the middleware, but in rare cases it's useful to save manually.
+  (undoSave is generated automatically by the middleware.)
 
 ## Configuration
 
-The `undoable()` middleware function accepts an optional configuration object.
+The `undoable()` function accepts an optional configuration object as its second parameter.
 
 - `maxHistory` - maximum number of history states to save. The oldest states are dropped to prevent the history from growing without bounds.
 - `noSaveKeys` - a function that tells undoRedo not to save certain keys inside the state model
