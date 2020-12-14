@@ -334,3 +334,17 @@ test("group Undo", () => {
     (history._getState(1) as Model).count.should.equal(2);
   });
 });
+
+test("actionStateFilter with group Undo", () => {
+  withStore(({ actions, history }) => {
+    actions.undoGroupStart();
+    actions.increment();
+    actions.increment();
+    actions.undoGroupComplete();
+    historyExpect(history, 2, 1);
+    (history._getState(1) as Model).count.should.equal(2);
+  });
+  function skipAction(state: State<Model>, action: AnyAction): boolean {
+    return true;
+  }
+});
