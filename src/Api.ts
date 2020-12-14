@@ -5,7 +5,8 @@ import {
   WithUndo,
   ActionStateFilter,
 } from "./Actions";
+import { useUndoGroup } from "./Hooks";
 
-export { undoRedo, undoable };
+export { undoRedo, undoable, useUndoGroup };
 
 export type { WithUndo, ActionStateFilter, KeyPathFilter };

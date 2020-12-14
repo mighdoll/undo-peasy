@@ -31,6 +31,8 @@ export interface WithUndo {
   undoReset: Action<WithUndo>;
   undoUndo: Action<WithUndo>;
   undoRedo: Action<WithUndo>;
+  undoGroupStart: Action<WithUndo>;
+  undoGroupComplete: Action<WithUndo>;
 }
 
 export type KeyPathFilter = (key: string, path: string[]) => boolean;
@@ -71,9 +73,28 @@ export function undoable<M extends AnyObject>(
   return modelWithUndo;
 }
 
-export interface ModelAndHistory<M> {
+export function useGroupUndo<T>(): any {
+  return function groupUndo<T>(fn: () => T): T {
+    // undoPause();
+    let result: T;
+    try {
+      result = fn();
+    } finally {
+      // undoContinue();
+    }
+    return result;
+  };
+}
+
+export interface EnrichedModel<M> {
   model: ModelWithUndo<M>;
   history: HistoryStore;
+}
+
+export interface ControlApi {
+  undoGroup: <T>(fn: () => T) => T;
+  undoPause: () => void;
+  undoContinue: () => void;
 }
 
 const skipNoKeys = (_str: string, _path: string[]) => false;
@@ -86,16 +107,19 @@ const skipNoKeys = (_str: string, _path: string[]) => false;
 export function undoableModelAndHistory<M extends {}>(
   model: M,
   historyOptions?: HistoryOptions<M>
-): ModelAndHistory<M> {
+): EnrichedModel<M> {
   const computeds = findModelComputeds(model);
   const history = historyStore(filterState, historyOptions);
   const noSaveKeys = historyOptions?.noSaveKeys || skipNoKeys;
   const skipAction = historyOptions?.skipAction || (() => false);
+  let grouped = 0;
 
   const undoSave = action<WithUndo, AnyAction>((draftState, prevAction) => {
-    const state = filterState(draftState);
-    if (!skipAction(state as any, prevAction)) {
-      history.save(state);
+    if (grouped === 0) {
+      const state = filterState(draftState);
+      if (!skipAction(state as any, prevAction)) {
+        history.save(state);
+      }
     }
   });
 
@@ -118,12 +142,27 @@ export function undoableModelAndHistory<M extends {}>(
     }
   });
 
+  const undoGroupStart = action<WithUndo>(() => {
+    grouped++;
+  });
+
+  const undoGroupComplete = action<WithUndo>((draftState) => {
+    grouped--;
+    if (grouped <= 0) {
+      grouped = 0;
+      const state = filterState(draftState);
+      history.save(state);
+    }
+  });
+
   const modelWithUndo = {
     ...model,
     undoSave,
     undoUndo,
     undoRedo,
     undoReset,
+    undoGroupStart,
+    undoGroupComplete,
   };
 
   return { model: modelWithUndo, history };

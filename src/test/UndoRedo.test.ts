@@ -323,3 +323,14 @@ test("actionStateFilter", () => {
     return false;
   }
 });
+
+test("group Undo", () => {
+  withStore(({ actions, history }) => {
+    actions.undoGroupStart();
+    actions.increment();
+    actions.increment();
+    actions.undoGroupComplete();
+    historyExpect(history, 2, 1);
+    (history._getState(1) as Model).count.should.equal(2);
+  });
+});
