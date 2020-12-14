@@ -336,15 +336,21 @@ test("group Undo", () => {
 });
 
 test("actionStateFilter with group Undo", () => {
-  withStore(({ actions, history }) => {
-    actions.undoGroupStart();
-    actions.increment();
-    actions.increment();
-    actions.undoGroupComplete();
-    historyExpect(history, 2, 1);
-    (history._getState(1) as Model).count.should.equal(2);
-  });
+  withStore(
+    ({ actions, history }) => {
+      actions.undoGroupStart();
+      actions.increment();
+      actions.increment();
+      actions.undoGroupComplete();
+      historyExpect(history, 1, 0);
+      (history._getState(0) as Model).count.should.equal(0);
+    },
+    { skipAction }
+  );
+
   function skipAction(state: State<Model>, action: AnyAction): boolean {
+    action.type.should.equal("@action.undoGroupComplete");
+    state.count.should.equal(2);
     return true;
   }
 });

@@ -1,8 +1,8 @@
 import { Action, action, State } from "easy-peasy";
 import _ from "lodash";
+import { AnyAction } from "redux";
 import { HistoryStore, historyStore } from "./HistoryStore";
 import { AnyObject, copyFiltered, findModelComputeds } from "./Utils";
-import { AnyAction } from "redux";
 
 /** Implementation strategy overview for undo/redo
  *
@@ -48,7 +48,7 @@ export interface HistoryOptions<M extends AnyObject> {
   logDiffs?: boolean;
 
   /** return true for actions that should not be saved into undo history */
-  skipAction?: ActionStateFilter<State<M>>;
+  skipAction?: ActionStateFilter<M>;
 }
 
 export type ActionStateFilter<M extends AnyObject> = (
@@ -91,7 +91,7 @@ const skipNoKeys = (_str: string, _path: string[]) => false;
  * extend a model instance with undo actions and metadata, and also return
  * the history store.
  */
-export function undoableModelAndHistory<M extends {}>(
+export function undoableModelAndHistory<M extends AnyObject>(
   model: M,
   historyOptions?: HistoryOptions<M>
 ): EnrichedModel<M> {
@@ -103,12 +103,16 @@ export function undoableModelAndHistory<M extends {}>(
 
   const undoSave = action<WithUndo, AnyAction>((draftState, prevAction) => {
     if (grouped === 0) {
-      const state = filterState(draftState);
-      if (!skipAction(state as any, prevAction)) {
-        history.save(state);
-      }
+      save(draftState, prevAction);
     }
   });
+
+  function save(draftState: AnyObject, prevAction: AnyAction) {
+    const state = filterState(draftState) as State<M>;
+    if (!skipAction(state, prevAction)) {
+      history.save(state);
+    }
+  }
 
   const undoReset = action<WithUndo>((draftState) => {
     const state = filterState(draftState);
@@ -137,8 +141,7 @@ export function undoableModelAndHistory<M extends {}>(
     grouped--;
     if (grouped <= 0) {
       grouped = 0;
-      const state = filterState(draftState);
-      history.save(state);
+      save(draftState, { type: "@action.undoGroupComplete" });
     }
   });
 
