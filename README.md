@@ -25,6 +25,8 @@ Undo/Redo support for [easy peasy](https://easy-peasy.now.sh/).
 
 - **`undoUndo`** - restore state to the most recently saved version.
 - **`undoRedo`** - restore state to the most recently undone version.
+- `undoGroupStart` - start a group, no states will be saved until group completes.
+- `undoGroupComplete` - complete a group of changes and save state.
 - `undoReset` - erases saved undo/redo history and saves the current state.
 - `undoSave` - save current application state to undo history.
   (undoSave is generated automatically by the middleware.)
@@ -41,3 +43,14 @@ The `undoable()` function accepts an optional configuration object as its second
 - `logDiffs` - set to true to see some debug logging about changes to undo state
 
 History is persisted in the browser's localStorage.
+
+## Hooks
+`useUndoGroup()` - returns a function that can be used to group a related set of changes into
+one undo/redo state.
+```
+  const undoGroup = useUndoGroup();
+
+  undoGroup(() => {
+    /* state changes in here will be saved as a single undo/redo state */
+  }); 
+```
