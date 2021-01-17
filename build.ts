@@ -1,4 +1,5 @@
 import { build as esbuild } from "esbuild";
+import { nodeExternalsPlugin } from "esbuild-node-externals";
 
 /** Basic typescript build script
  * commands:
@@ -37,6 +38,7 @@ function bundle(production: boolean): Promise<void> {
     splitting: true,
     format: "esm",
     target: "es2019",
+    plugins: [nodeExternalsPlugin()],
     define: {
       "process.env.NODE_ENV": production ? '"production"' : '"development"',
     },
