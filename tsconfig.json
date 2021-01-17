@@ -6,14 +6,15 @@
     "allowJs": true,
     "strict": true,
     "skipLibCheck": true,
-    "jsx":"react",
+    "jsx": "react",
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "node",
     "downlevelIteration": true,
     "noEmit": false,
     "importsNotUsedAsValues": "remove",
-    "isolatedModules": true
+    "isolatedModules": true,
+    "outDir": "ts-out"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
