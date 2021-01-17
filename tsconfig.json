@@ -16,6 +16,6 @@
     "sourceMap": true,
     "outFile": "dist/undo-peasy.js"
   },
-  "include": ["src/**/*"],
+  "files": ["src/Api.ts"],
   "exclude": ["node_modules"]
 }
