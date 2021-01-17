@@ -8,13 +8,13 @@
     "skipLibCheck": true,
     "jsx": "react",
     "esModuleInterop": true,
-    "module": "esnext",
+    "module": "system",
     "moduleResolution": "node",
     "downlevelIteration": true,
     "noEmit": false,
     "importsNotUsedAsValues": "remove",
-    "isolatedModules": true,
-    "outDir": "ts-out"
+    "sourceMap": true,
+    "outFile": "dist/undo-peasy.js"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
