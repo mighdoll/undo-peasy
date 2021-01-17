@@ -1,6 +1,9 @@
 import { build as esbuild } from "esbuild";
 import { nodeExternalsPlugin } from "esbuild-node-externals";
+import util from "util";
+import { exec } from "child_process";
 
+const execPromise = util.promisify(exec);
 /** Basic typescript build script
  * commands:
  *  --tasks     list tasks
@@ -20,7 +23,12 @@ const defaultCmd = "dev";
 const entryPoints = ["./src/Api.ts"];
 
 export async function prod(): Promise<any> {
-  return bundle(true);
+  return Promise.all([compileDefinitions(), bundle(true)]);
+}
+
+export async function compileDefinitions(): Promise<any> {
+  return execPromise("tsc")
+    .then(() => console.log("compiled module definitions"));
 }
 
 export async function dev(): Promise<any> {
@@ -62,7 +70,7 @@ async function runCmd() {
       (key: string) => key.toLowerCase() === cmd
     );
     if (foundKey) {
-      exports[foundKey]();
+      await exports[foundKey]();
     } else {
       console.error(`build command: "${cmd}" not found`);
       return 1;
