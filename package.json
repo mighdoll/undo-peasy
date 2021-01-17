@@ -1,8 +1,17 @@
 {
   "name": "undo-peasy",
   "version": "0.3.0",
-  "main": "dist/undo-peasy.js",
-  "types": "dist/undo-peasy.d.ts",
+  "main": "dist/Api.js",
+  "module": "dist/Api.ts",
+  "types": "dist/Api.d.ts",
+  "type": "module",
+  "exports": {
+    "import": "./dist/Api.js"
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ],
   "dependencies": {
     "fast-json-patch": "^3.0.0-1",
     "lodash": "^4.17.20"
