@@ -25,6 +25,7 @@
     "dev": "bin/bld"
   },
   "devDependencies": {
+    "@skypack/package-check": "^0.2.2",
     "@types/chai": "^4.2.14",
     "@types/fast-json-patch": "^1.1.5",
     "@types/lodash": "^4.14.163",
