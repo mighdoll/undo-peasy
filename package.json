@@ -34,25 +34,24 @@
     "@typescript-eslint/parser": "^4.6.0",
     "chai": "^4.2.0",
     "chokidar": "^3.4.3",
-    "easy-peasy": "4.1.0-beta.4",
+    "easy-peasy": "^5.0.0",
     "esbuild": "^0.8.32",
     "esbuild-node-externals": "^1.0.1",
     "eslint": "^7.12.1",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
     "fs-extra": "^9.0.1",
+    "immer": "^8.0.0",
     "jest": "^26.6.1",
     "jest-localstorage-mock": "^2.4.3",
     "prettier": "^2.1.2",
-    "react": "^17.0.1",
+    "react": "^17.0.2",
     "ts-jest": "^26.4.3",
     "typescript": "^4.0.5",
     "tys": "^0.2.5"
   },
   "peerDependencies": {
-    "easy-peasy": "4.1.0-beta.4",
-    "immer": "^7.0.14",
-    "react": "^16.13.1"
+    "easy-peasy": "^5.0.0"
   },
   "description": "undo/redo for easy peasy",
   "repository": {

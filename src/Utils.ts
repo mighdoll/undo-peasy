@@ -63,6 +63,7 @@ export function findModelComputeds(
 ): string[][] {
   const result = Object.entries(src).flatMap(([key, value]) => {
     if (isComputedField(value)) {
+      
       const getter = [pathPrefix.concat([key])];
       return getter;
     } else if (_.isPlainObject(value)) {
@@ -74,7 +75,7 @@ export function findModelComputeds(
   return result;
 }
 
-export const computedSymbol = "$ep_c";
+export const computedSymbol = "$_c";
 
 function isComputedField(value: unknown): boolean {
   if (_.isPlainObject(value)) {
