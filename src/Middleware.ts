@@ -4,15 +4,7 @@ import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from "redux";
  *
  * The middleware does two things:
  *
- * 1) for undo/redo actions, the middlware attaches some information to the action.
- * It attaches the 'raw' state object. easy peasy normally sends only an immer
- * proxy of the raw state, and the proxy obscures the difference between computed
- * and regular properties.
- * For undo/redo actions the middleware also attaches the user provided noSaveKeys
- * filter function. (Note that passing the filter function with every undo/redo action
- * is a bit inefficient. The thought is to be cleaner for the undo-peasy user
- * with the config in one place, rather than some config on the middleware and
- * some config in undoable())
+ * 1) for undo/redo actions, the middlware does nothing. The undo/redo reducer will handle those.
  *
  * 2) for normal actions, the middeware dispatches an additional undoSave action to
  * follow the original action. The reducer for the undoSave action will save the state
