@@ -4,7 +4,7 @@ type ObjOrArray = object | Array<any>;
 
 /** Return a copy of an object with some fields elided.
  *
- * @param fn copy will not include source properties for which this function returns true
+ * @param fn skip properties for which this function returns true
  */
 export function copyFiltered(
   src: ObjOrArray,
