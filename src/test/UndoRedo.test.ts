@@ -39,16 +39,22 @@ const simpleModel: Model = {
 interface ViewModel {
   count: number;
   view: number;
+  viewDeep: { a: number };
   increment: Action<ViewModel>;
   doubleView: Action<ViewModel>;
+  doubleDeepView: Action<ViewModel>;
   countSquared: Computed<ViewModel, number>;
 }
 
 const viewModel: ViewModel = {
   count: 0,
   view: 7,
+  viewDeep: { a: 9 },
   doubleView: action((state) => {
     state.view *= 2;
+  }),
+  doubleDeepView: action((state) => {
+    state.viewDeep.a *= 2;
   }),
   increment: action((state) => {
     state.count++;
@@ -104,7 +110,7 @@ function withViewStore(
 }
 
 function noSaveKeys(key: string): boolean {
-  return key === "view";
+  return key === "view" || key === "viewDeep";
 }
 
 function historyExpect(
@@ -250,6 +256,14 @@ test("views are restored by undo/redo", () => {
 test("views actions are not saved", () => {
   withViewStore(({ actions, history }) => {
     actions.doubleView();
+
+    historyExpect(history, 1, 0);
+  });
+});
+
+test("deep view actions are not saved", () => {
+  withViewStore(({ actions, history }) => {
+    actions.doubleDeepView();
 
     historyExpect(history, 1, 0);
   });
