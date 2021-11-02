@@ -1,5 +1,4 @@
 import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from "redux";
-import { replaceUndefined } from "./Utils";
 
 /** @returns redux middleware to support undo/redo actions.
  *
@@ -44,8 +43,8 @@ function undoAction(actionType: string): boolean {
     actionType === "@action.undoSave" ||
     actionType === "@action.undoReset" ||
     actionType === "@action.undoUndo" ||
-    actionType === "@action.undoRedo" || 
-    actionType === "@action.undoGroupStart" || 
-    actionType === "@action.undoGroupComplete" 
+    actionType === "@action.undoRedo" ||
+    actionType === "@action.undoGroupStart" ||
+    actionType === "@action.undoGroupComplete"
   );
 }
