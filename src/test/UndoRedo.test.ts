@@ -73,7 +73,8 @@ interface StoreAndHistory<M extends AnyObject> {
 
 function withStore(
   fn: (storeAndHistory: StoreAndHistory<Model>) => void,
-  historyOptions?: HistoryOptions<Model>
+  historyOptions?: HistoryOptions<Model>,
+  noReset?: boolean
 ) {
   const { model, history } = undoableModelAndHistory(
     simpleModel,
@@ -84,7 +85,9 @@ function withStore(
     middleware: [undoRedoMiddleware()],
   });
   const actions = store.getActions();
-  actions.undoReset();
+  if (!noReset) {
+    actions.undoReset();
+  }
   try {
     fn({ store, actions, history });
   } finally {
@@ -123,6 +126,18 @@ function historyExpect(
   length.should.equal(expectLength);
   index.should.equal(expectIndex);
 }
+
+test("undo before any action, no reset first", () => {
+  withStore(({store, actions, history}) => {
+    store.getState(); //?
+    actions.increment();
+    history._allSaved(); //?
+    actions.undoUndo();
+    store.getState().count.should.equal(0); 
+    
+
+  }, undefined, true);
+});
 
 test("save an action", () => {
   withStore(({ actions, history }) => {
