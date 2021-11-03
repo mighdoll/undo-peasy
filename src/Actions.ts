@@ -27,7 +27,7 @@ import { AnyObject, copyFiltered, findModelComputeds } from "./Utils";
  * The root application model interface should extend WithUndo.
  */
 export interface WithUndo {
-  undoSave: Action<WithUndo, ActionAndState>;
+  undoSave: Action<WithUndo, ActionAndState | void>;
   undoReset: Action<WithUndo>;
   undoUndo: Action<WithUndo>;
   undoRedo: Action<WithUndo>;
@@ -107,9 +107,14 @@ export function undoableModelAndHistory<M extends AnyObject>(
   let grouped = 0;
 
   const undoSave = action<WithUndo, ActionAndState>(
-    (draftState, { action, prevState }) => {
+    (draftState, actionState) => {
       if (grouped === 0) {
-        save(draftState, action, prevState);
+        if (actionState) {
+          const { action, prevState } = actionState;
+          save(draftState, action, prevState);
+        } else {
+          save(draftState, { type: "@manualsave" });
+        }
       }
     }
   );

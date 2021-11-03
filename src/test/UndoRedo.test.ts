@@ -123,7 +123,7 @@ function historyExpect(
 ): void {
   const index = history._currentIndex()!;
   const length = history._allSaved().length;
-  length.should.equal(expectLength);
+  length.should.equal(expectLength, "history length");
   index.should.equal(expectIndex);
 }
 
@@ -165,6 +165,20 @@ test("undo an action", () => {
     store.getState().count.should.equal(0);
     historyExpect(history, 2, 0);
   });
+});
+
+test("manual save", () => {
+  withStore(
+    ({ store, history, actions }) => {
+      store.getState().count = 7; // cheat and manually modify state
+      actions.undoSave(); // verify that it's ok to call w/o parameters
+
+      store.getState().count.should.equal(7);
+      historyExpect(history, 1, 0);
+    },
+    undefined,
+    true
+  );
 });
 
 test("undo two actions", () => {
