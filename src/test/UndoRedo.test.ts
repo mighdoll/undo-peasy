@@ -127,7 +127,7 @@ function historyExpect(
   index.should.equal(expectIndex);
 }
 
-test("undo before any action, no reset first", () => {
+test.skip("undo before any action, no reset first", () => {
   withStore(
     ({ store, actions, history }) => {
       store.getState(); //?
@@ -380,7 +380,7 @@ test("actionStateFilter with group Undo", () => {
   );
 
   function skipAction(state: State<Model>, action: AnyAction): boolean {
-    action; //?
+    console.log("action", action);
     action.type.should.equal("@action.undoGroupComplete");
     state.count.should.equal(2);
     return true;

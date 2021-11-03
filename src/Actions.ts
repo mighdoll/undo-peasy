@@ -152,10 +152,7 @@ export function undoableModelAndHistory<M extends AnyObject>(
     grouped--;
     if (grouped <= 0) {
       grouped = 0;
-      save(draftState, {
-        action: { type: "@action.undoGroupComplete" },
-        prevState: draftState,
-      });
+      save(draftState, { type: "@action.undoGroupComplete" }, draftState);
     }
   });
 
