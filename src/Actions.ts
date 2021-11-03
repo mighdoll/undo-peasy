@@ -27,12 +27,17 @@ import { AnyObject, copyFiltered, findModelComputeds } from "./Utils";
  * The root application model interface should extend WithUndo.
  */
 export interface WithUndo {
-  undoSave: Action<WithUndo, AnyAction>;
+  undoSave: Action<WithUndo, ActionAndState>;
   undoReset: Action<WithUndo>;
   undoUndo: Action<WithUndo>;
   undoRedo: Action<WithUndo>;
   undoGroupStart: Action<WithUndo>;
   undoGroupComplete: Action<WithUndo>;
+}
+
+interface ActionAndState {
+  action: AnyAction;
+  prevState?: AnyObject;
 }
 
 export type KeyPathFilter = (key: string, path: string[]) => boolean;
@@ -101,16 +106,22 @@ export function undoableModelAndHistory<M extends AnyObject>(
   const skipAction = historyOptions?.skipAction || (() => false);
   let grouped = 0;
 
-  const undoSave = action<WithUndo, AnyAction>((draftState, prevAction) => {
-    if (grouped === 0) {
-      save(draftState, prevAction);
+  const undoSave = action<WithUndo, ActionAndState>(
+    (draftState, { action, prevState }) => {
+      if (grouped === 0) {
+        save(draftState, action, prevState);
+      }
     }
-  });
+  );
 
-  function save(draftState: AnyObject, prevAction: AnyAction) {
+  function save(
+    draftState: AnyObject,
+    action: AnyAction,
+    prevState?: AnyObject
+  ) {
     const state = filterState(draftState) as State<M>;
-    if (!skipAction(state, prevAction)) {
-      history.save(state);
+    if (!skipAction(state, action)) {
+      history.save(state, prevState);
     }
   }
 
@@ -141,7 +152,7 @@ export function undoableModelAndHistory<M extends AnyObject>(
     grouped--;
     if (grouped <= 0) {
       grouped = 0;
-      save(draftState, { type: "@action.undoGroupComplete" });
+      save(draftState, { type: "@action.undoGroupComplete" }, draftState);
     }
   });
 

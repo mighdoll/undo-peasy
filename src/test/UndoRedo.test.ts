@@ -73,7 +73,8 @@ interface StoreAndHistory<M extends AnyObject> {
 
 function withStore(
   fn: (storeAndHistory: StoreAndHistory<Model>) => void,
-  historyOptions?: HistoryOptions<Model>
+  historyOptions?: HistoryOptions<Model>,
+  noReset?: boolean
 ) {
   const { model, history } = undoableModelAndHistory(
     simpleModel,
@@ -84,7 +85,9 @@ function withStore(
     middleware: [undoRedoMiddleware()],
   });
   const actions = store.getActions();
-  actions.undoReset();
+  if (!noReset) {
+    actions.undoReset();
+  }
   try {
     fn({ store, actions, history });
   } finally {
@@ -123,6 +126,19 @@ function historyExpect(
   length.should.equal(expectLength);
   index.should.equal(expectIndex);
 }
+
+test("undo, no reset first", () => {
+  withStore(
+    ({ store, actions, history }) => {
+      actions.increment();
+      actions.undoUndo();
+
+      store.getState().count.should.equal(0);
+    },
+    undefined,
+    true
+  );
+});
 
 test("save an action", () => {
   withStore(({ actions, history }) => {
@@ -178,7 +194,7 @@ test("don't save duplicate state", () => {
   withStore(({ store, history, actions }) => {
     actions.increment();
     store.getState().count.should.equal(1);
-    actions.undoSave({ type: "do_nada" });
+    actions.undoSave({ action: { type: "do_nada" }, prevState: {} });
 
     historyExpect(history, 2, 1);
   });
@@ -363,6 +379,7 @@ test("actionStateFilter with group Undo", () => {
   );
 
   function skipAction(state: State<Model>, action: AnyAction): boolean {
+    console.log("action", action);
     action.type.should.equal("@action.undoGroupComplete");
     state.count.should.equal(2);
     return true;
