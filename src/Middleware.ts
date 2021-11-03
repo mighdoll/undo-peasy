@@ -17,8 +17,12 @@ export function undoRedo(): Middleware {
     if (alwaysSkipAction(action.type) || undoAction(action.type)) {
       return next(action);
     } else {
+      const prevState = api.getState();
       const result = next(action);
-      api.dispatch({ type: "@action.undoSave", payload: action });
+      api.dispatch({
+        type: "@action.undoSave",
+        payload: { action, prevState },
+      });
       return result;
     }
   };

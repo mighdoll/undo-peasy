@@ -128,15 +128,17 @@ function historyExpect(
 }
 
 test("undo before any action, no reset first", () => {
-  withStore(({store, actions, history}) => {
-    store.getState(); //?
-    actions.increment();
-    history._allSaved(); //?
-    actions.undoUndo();
-    store.getState().count.should.equal(0); 
-    
-
-  }, undefined, true);
+  withStore(
+    ({ store, actions, history }) => {
+      store.getState(); //?
+      actions.increment();
+      history._allSaved(); //?
+      actions.undoUndo();
+      store.getState().count.should.equal(0);
+    },
+    undefined,
+    true
+  );
 });
 
 test("save an action", () => {
@@ -193,7 +195,7 @@ test("don't save duplicate state", () => {
   withStore(({ store, history, actions }) => {
     actions.increment();
     store.getState().count.should.equal(1);
-    actions.undoSave({ type: "do_nada" });
+    actions.undoSave({ action: { type: "do_nada" }, prevState: {} });
 
     historyExpect(history, 2, 1);
   });
@@ -378,6 +380,7 @@ test("actionStateFilter with group Undo", () => {
   );
 
   function skipAction(state: State<Model>, action: AnyAction): boolean {
+    action; //?
     action.type.should.equal("@action.undoGroupComplete");
     state.count.should.equal(2);
     return true;
