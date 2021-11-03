@@ -393,7 +393,6 @@ test("actionStateFilter with group Undo", () => {
   );
 
   function skipAction(state: State<Model>, action: AnyAction): boolean {
-    console.log("action", action);
     action.type.should.equal("@action.undoGroupComplete");
     state.count.should.equal(2);
     return true;
