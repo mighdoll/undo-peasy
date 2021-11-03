@@ -121,7 +121,7 @@ export function undoableModelAndHistory<M extends AnyObject>(
   ) {
     const state = filterState(draftState) as State<M>;
     if (!skipAction(state, action)) {
-      history.save(state);
+      history.save(state, prevState);
     }
   }
 

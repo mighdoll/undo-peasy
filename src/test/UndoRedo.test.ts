@@ -127,13 +127,12 @@ function historyExpect(
   index.should.equal(expectIndex);
 }
 
-test.skip("undo before any action, no reset first", () => {
+test("undo, no reset first", () => {
   withStore(
     ({ store, actions, history }) => {
-      store.getState(); //?
       actions.increment();
-      history._allSaved(); //?
       actions.undoUndo();
+
       store.getState().count.should.equal(0);
     },
     undefined,

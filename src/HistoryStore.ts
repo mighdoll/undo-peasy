@@ -25,7 +25,7 @@ export const oldestKey = keyPrefix + "state-oldest";
  */
 
 export interface HistoryStore {
-  save: (state: AnyObject) => void;
+  save: (state: AnyObject, prevState: AnyObject | undefined) => void;
   reset: (state: AnyObject) => void;
   undo: (state: AnyObject) => AnyObject | undefined;
   redo: (state: AnyObject) => AnyObject | undefined;
@@ -63,11 +63,16 @@ export function historyStore<M extends AnyObject>(
     _getState,
   };
 
-  function save(state: AnyObject): void {
+  function save(state: AnyObject, prevState: AnyObject | undefined): void {
     const currentDex = currentIndex();
     const oldestDex = oldestIndex() || 0;
     if (currentDex === undefined) {
-      saveState(state, 0);
+      if (prevState) { 
+        saveState(prevState, 0);
+        saveState(state, 1);
+      } else {
+        saveState(state, 0);
+      }
       storage.setItem(oldestKey, "0");
       if (logDiffs) {
         console.log("save\n", state);
