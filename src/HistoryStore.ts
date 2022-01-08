@@ -251,6 +251,3 @@ export function historyStore<M extends AnyObject>(
 function getStorage(): Storage {
   return localStorage; // for now, just one store. (tests use one mocked store per test thread.)
 }
-function dlog() {
-  throw new Error("Function not implemented.");
-}
