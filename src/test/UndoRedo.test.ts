@@ -398,3 +398,16 @@ test("actionStateFilter with group Undo", () => {
     return true;
   }
 });
+
+test("group Ignore", () => {
+  withStore(({ actions, history }) => {
+    actions.undoGroupStart();
+    actions.increment();
+    actions.increment();
+    actions.undoGroupIgnore();
+    actions.increment();
+    history._currentIndex(); 
+    historyExpect(history, 2, 1);
+    (history._getState(1) as Model).count.should.equal(3);
+  });
+});

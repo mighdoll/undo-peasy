@@ -41,6 +41,7 @@ function undoAction(actionType: string): boolean {
     actionType === "@action.undoUndo" ||
     actionType === "@action.undoRedo" ||
     actionType === "@action.undoGroupStart" ||
+    actionType === "@action.undoGroupIgnore" ||
     actionType === "@action.undoGroupComplete"
   );
 }

@@ -33,6 +33,7 @@ export interface WithUndo {
   undoRedo: Action<WithUndo>;
   undoGroupStart: Action<WithUndo>;
   undoGroupComplete: Action<WithUndo>;
+  undoGroupIgnore: Action<WithUndo>;
 }
 
 interface ActionAndState {
@@ -161,6 +162,14 @@ export function undoableModelAndHistory<M extends AnyObject>(
     }
   });
 
+  const undoGroupIgnore = action<WithUndo>((draftState) => {
+    grouped--;
+    if (grouped <= 0) {
+      grouped = 0;
+    }
+  });
+
+
   const modelWithUndo = {
     ...model,
     undoSave,
@@ -169,6 +178,7 @@ export function undoableModelAndHistory<M extends AnyObject>(
     undoReset,
     undoGroupStart,
     undoGroupComplete,
+    undoGroupIgnore,
   };
 
   return { model: modelWithUndo, history };

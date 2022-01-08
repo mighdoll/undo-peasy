@@ -67,7 +67,7 @@ export function historyStore<M extends AnyObject>(
     const currentDex = currentIndex();
     const oldestDex = oldestIndex() || 0;
     if (currentDex === undefined) {
-      if (prevState) { 
+      if (prevState) {
         saveState(prevState, 0);
         saveState(state, 1);
       } else {
@@ -250,4 +250,7 @@ export function historyStore<M extends AnyObject>(
 
 function getStorage(): Storage {
   return localStorage; // for now, just one store. (tests use one mocked store per test thread.)
+}
+function dlog() {
+  throw new Error("Function not implemented.");
 }

@@ -21,3 +21,20 @@ export function useUndoGroup<T>(): (fn: () => T) => T {
     return result;
   };
 }
+
+export function useUndoIgnore<T>(): (fn: () => T) => T {
+  const groupStart = useStoreActions((model) => model.undoGroupStart);
+  const groupIgnore = useStoreActions((model) => model.undoGroupIgnore);
+
+  return function undoGroup<T>(fn: () => T): T {
+    let result: T;
+
+    groupStart();
+    try {
+      result = fn();
+    } finally {
+      groupIgnore();
+    }
+    return result;
+  };
+}
