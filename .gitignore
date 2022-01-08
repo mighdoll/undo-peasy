@@ -1,5 +1,4 @@
 dist/
-node_modules/
 .vscode/
 .DS_Store
 *.log
@@ -9,3 +8,13 @@ build/
 .yalc/
 tmp/
 ts-out/
+
+# yarn stuff
+node_modules/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
