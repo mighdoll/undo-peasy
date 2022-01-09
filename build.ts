@@ -23,7 +23,9 @@ const defaultCmd = "dev";
 const entryPoints = ["./src/Api.ts"];
 
 export async function prod(): Promise<any> {
-  return Promise.all([compileDefinitions(), bundle(true)]);
+  // include src maps and no-minify dist for now
+  return Promise.all([compileDefinitions(), bundle(false)]);
+  //return Promise.all([compileDefinitions(), bundle(true)]);
 }
 
 export async function compileDefinitions(): Promise<any> {
