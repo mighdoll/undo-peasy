@@ -73,8 +73,7 @@ interface StoreAndHistory<M extends AnyObject> {
 
 function withStore(
   fn: (storeAndHistory: StoreAndHistory<Model>) => void,
-  historyOptions?: HistoryOptions<Model>,
-  noReset?: boolean
+  historyOptions?: HistoryOptions<Model>
 ) {
   const { model, history } = undoableModelAndHistory(
     simpleModel,
@@ -85,9 +84,6 @@ function withStore(
     middleware: [undoRedoMiddleware()],
   });
   const actions = store.getActions();
-  if (!noReset) {
-    actions.undoReset();
-  }
   try {
     fn({ store, actions, history });
   } finally {
@@ -101,6 +97,7 @@ function withViewStore(
   const { model, history } = undoableModelAndHistory(viewModel, {
     noSaveKeys: viewKeys,
   });
+  history._erase();
   const store = createStore(model, {
     middleware: [undoRedoMiddleware()],
   });
@@ -128,23 +125,19 @@ function historyExpect(
 }
 
 test("undo, no reset first", () => {
-  withStore(
-    ({ store, actions, history }) => {
-      actions.increment();
-      actions.undoUndo();
+  withStore(({ store, actions, history }) => {
+    actions.increment();
+    actions.undoUndo();
 
-      store.getState().count.should.equal(0);
-    },
-    undefined,
-    true
-  );
+    store.getState().count.should.equal(0);
+  });
 });
 
 test("zero state filters views", () => {
   withViewStore(({ history, actions }) => {
     actions.increment();
     history._currentIndex().should.equal(1);
-    history._getState(0); 
+    history._getState(0);
     expect(history._getState(0)?.view).toBeUndefined;
   });
 });
@@ -177,17 +170,13 @@ test("undo an action", () => {
 });
 
 test("manual save", () => {
-  withStore(
-    ({ store, history, actions }) => {
-      store.getState().count = 7; // cheat and manually modify state
-      actions.undoSave(); // verify that it's ok to call w/o parameters
+  withStore(({ store, history, actions }) => {
+    store.getState().count = 7; // cheat and manually modify state
+    actions.undoSave(); // verify that it's ok to call w/o parameters
 
-      store.getState().count.should.equal(7);
-      historyExpect(history, 1, 0);
-    },
-    undefined,
-    true
-  );
+    store.getState().count.should.equal(7);
+    historyExpect(history, 1, 0);
+  });
 });
 
 test("undo two actions", () => {
@@ -374,8 +363,8 @@ test("group Undo", () => {
     actions.increment();
     actions.increment();
     actions.undoGroupComplete();
-    historyExpect(history, 2, 1);
-    (history._getState(1) as Model).count.should.equal(2);
+    historyExpect(history, 1, 0);
+    (history._getState(0) as Model).count.should.equal(2);
   });
 });
 
@@ -386,8 +375,8 @@ test("actionStateFilter with group Undo", () => {
       actions.increment();
       actions.increment();
       actions.undoGroupComplete();
-      historyExpect(history, 1, 0);
-      (history._getState(0) as Model).count.should.equal(0);
+      expect(history._oldestIndex()).toBeUndefined();
+      expect(history._currentIndex()).toBeUndefined();
     },
     { skipAction }
   );
