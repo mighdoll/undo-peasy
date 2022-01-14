@@ -25,17 +25,18 @@ export const oldestKey = keyPrefix + "state-oldest";
  */
 
 export interface HistoryStore {
-  save: (state: AnyObject, prevState: AnyObject | undefined) => void;
-  reset: (state: AnyObject) => void;
-  undo: (state: AnyObject) => AnyObject | undefined;
-  redo: (state: AnyObject) => AnyObject | undefined;
+  save(state: AnyObject, prevState: AnyObject | undefined): void;
+  reset(state: AnyObject): void;
+  undo(state: AnyObject): AnyObject | undefined;
+  redo(state: AnyObject): AnyObject | undefined;
+  initialized(): boolean;
 
   // functions with an _ prefix are exposed for testing, but not intended for public use
-  _currentIndex: () => number | undefined;
-  _oldestIndex: () => number | undefined;
-  _allSaved: () => AnyObject[];
-  _erase: () => void;
-  _getState: (index: number) => AnyObject | undefined;
+  _currentIndex(): number | undefined;
+  _oldestIndex(): number | undefined;
+  _allSaved(): AnyObject[];
+  _erase(): void;
+  _getState(index: number): AnyObject | undefined;
 }
 
 const defaultMaxHistory = 250;
@@ -50,18 +51,27 @@ export function historyStore<M extends AnyObject>(
   const maxHistory = historyOptions?.maxHistory || defaultMaxHistory;
   const storage = getStorage();
   const logDiffs = historyOptions?.logDiffs || false;
+  let empty = currentIndex() !== undefined;
 
   return {
     save,
     reset,
     undo,
     redo,
+    initialized,
     _currentIndex: currentIndex,
     _oldestIndex: oldestIndex,
     _allSaved,
     _erase,
     _getState,
   };
+
+  function initialized(): boolean {
+    if (empty) {
+      empty = currentIndex() !== undefined;
+    }
+    return empty;
+  }
 
   function save(state: AnyObject, prevState: AnyObject | undefined): void {
     const currentDex = currentIndex();
