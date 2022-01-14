@@ -69,7 +69,7 @@ export function historyStore<M extends AnyObject>(
     if (currentDex === undefined) {
       if (prevState) {
         saveState(prevState, 0);
-        saveState(state, 1);
+        saveStateIfNew(state, 0);
       } else {
         saveState(state, 0);
       }

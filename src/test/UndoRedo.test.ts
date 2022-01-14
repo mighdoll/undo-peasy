@@ -286,7 +286,7 @@ test("views actions are not saved", () => {
   withViewStore(({ actions, history }) => {
     actions.doubleView();
 
-    historyExpect(history, 2, 1);
+    historyExpect(history, 1, 0);
   });
 });
 
@@ -294,7 +294,7 @@ test("deep view actions are not saved", () => {
   withViewStore(({ actions, history }) => {
     actions.doubleDeepView();
 
-    historyExpect(history, 2, 1);
+    historyExpect(history, 1, 0);
   });
 });
 
