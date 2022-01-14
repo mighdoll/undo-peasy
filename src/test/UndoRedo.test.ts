@@ -278,16 +278,6 @@ test("views are not saved", () => {
   });
 });
 
-test("views are restored by undo/redo", () => {
-  withViewStore(({ actions, store }) => {
-    actions.increment();
-    actions.doubleView();
-    actions.undoUndo();
-
-    store.getState().view.should.equal(viewModel.view * 2);
-  });
-});
-
 test("views actions are not saved", () => {
   withViewStore(({ actions, history }) => {
     actions.doubleView();
