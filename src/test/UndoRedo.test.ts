@@ -96,10 +96,11 @@ function withStore(
 }
 
 function withViewStore(
-  fn: (storeAndHistory: StoreAndHistory<ViewModel>) => void,
+  fn: (storeAndHistory: StoreAndHistory<ViewModel>) => void
 ) {
-  const { model, history } = undoableModelAndHistory(viewModel, { noSaveKeys });
-  history._erase();
+  const { model, history } = undoableModelAndHistory(viewModel, {
+    noSaveKeys: viewKeys,
+  });
   const store = createStore(model, {
     middleware: [undoRedoMiddleware()],
   });
@@ -111,7 +112,7 @@ function withViewStore(
   }
 }
 
-function noSaveKeys(key: string): boolean {
+function viewKeys(key: string): boolean {
   return key === "view" || key === "viewDeep";
 }
 
@@ -140,10 +141,13 @@ test("undo, no reset first", () => {
 });
 
 test("zero state filters views", () => {
-  // TODO implement
+  withViewStore(({ history, actions }) => {
+    actions.increment();
+    history._currentIndex().should.equal(1);
+    history._getState(0); 
+    expect(history._getState(0)?.view).toBeUndefined;
+  });
 });
-
-
 
 test("save an action", () => {
   withStore(({ actions, history }) => {
@@ -297,8 +301,8 @@ test("deep view actions are not saved", () => {
 test("computed values are not saved", () => {
   withViewStore(({ store, actions, history }) => {
     store.getState().countSquared.should.equal(49);
-    actions.increment(); 
-    const savedState = history._getState(1)!; 
+    actions.increment();
+    const savedState = history._getState(1)!;
     Object.keys(savedState).includes("countSquared").should.equal(false);
   });
 });
@@ -402,7 +406,7 @@ test("group Ignore", () => {
     actions.increment();
     actions.undoGroupIgnore();
     actions.increment();
-    history._currentIndex(); 
+    history._currentIndex();
     historyExpect(history, 2, 1);
     (history._getState(1) as Model).count.should.equal(3);
   });

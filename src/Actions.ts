@@ -127,7 +127,12 @@ export function undoableModelAndHistory<M extends AnyObject>(
   ) {
     const state = filterState(draftState) as State<M>;
     if (!skipAction(state, action)) {
-      history.save(state, prevState);
+      if (prevState && history._currentIndex() === undefined) {
+        const prevFiltered = filterState(prevState);
+        history.save(state, prevFiltered);
+      } else {
+        history.save(state, prevState);
+      }
     }
   }
 
@@ -168,7 +173,6 @@ export function undoableModelAndHistory<M extends AnyObject>(
       grouped = 0;
     }
   });
-
 
   const modelWithUndo = {
     ...model,
