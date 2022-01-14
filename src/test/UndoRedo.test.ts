@@ -115,13 +115,12 @@ function viewKeys(key: string): boolean {
 
 function historyExpect(
   history: HistoryStore,
-  expectLength: number,
-  expectIndex: number
+  e: { length: number; index: number | undefined }
 ): void {
   const index = history._currentIndex()!;
   const length = history._allSaved().length;
-  length.should.equal(expectLength, "history length");
-  index.should.equal(expectIndex);
+  length.should.equal(e.length, "history length");
+  expect(index).toEqual(e.index);
 }
 
 test("undo, no reset first", () => {
@@ -146,7 +145,7 @@ test("save an action", () => {
   withStore(({ actions, history }) => {
     actions.increment();
 
-    historyExpect(history, 2, 1);
+    historyExpect(history, { length: 2, index: 1 });
   });
 });
 
@@ -155,7 +154,7 @@ test("save two actions", () => {
     actions.increment();
     actions.increment();
 
-    historyExpect(history, 3, 2);
+    historyExpect(history, { length: 3, index: 2 });
   });
 });
 
@@ -165,7 +164,7 @@ test("undo an action", () => {
     actions.undoUndo();
 
     store.getState().count.should.equal(0);
-    historyExpect(history, 2, 0);
+    historyExpect(history, { length: 2, index: 0 });
   });
 });
 
@@ -175,7 +174,7 @@ test("manual save", () => {
     actions.undoSave(); // verify that it's ok to call w/o parameters
 
     store.getState().count.should.equal(7);
-    historyExpect(history, 1, 0);
+    historyExpect(history, { length: 1, index: 0 });
   });
 });
 
@@ -187,7 +186,7 @@ test("undo two actions", () => {
     actions.undoUndo();
 
     store.getState().count.should.equal(0);
-    historyExpect(history, 3, 0);
+    historyExpect(history, { length: 3, index: 0 });
   });
 });
 
@@ -198,7 +197,7 @@ test("two actions, undo one", () => {
     actions.undoUndo();
 
     store.getState().count.should.equal(1);
-    historyExpect(history, 3, 1);
+    historyExpect(history, { length: 3, index: 1 });
   });
 });
 
@@ -208,7 +207,7 @@ test("don't save duplicate state", () => {
     store.getState().count.should.equal(1);
     actions.undoSave({ action: { type: "do_nada" }, prevState: {} });
 
-    historyExpect(history, 2, 1);
+    historyExpect(history, { length: 2, index: 1 });
   });
 });
 
@@ -224,7 +223,7 @@ test("redo", () => {
     actions.undoRedo();
     store.getState().count.should.equal(2);
 
-    historyExpect(history, 4, 2);
+    historyExpect(history, { length: 4, index: 2 });
   });
 });
 
@@ -232,11 +231,11 @@ test("redo unavailable", () => {
   withStore(({ store, history, actions }) => {
     actions.increment();
     store.getState().count.should.equal(1);
-    historyExpect(history, 2, 1);
+    historyExpect(history, { length: 2, index: 1 });
     actions.undoRedo();
     store.getState().count.should.equal(1);
 
-    historyExpect(history, 2, 1);
+    historyExpect(history, { length: 2, index: 1 });
   });
 });
 
@@ -259,7 +258,7 @@ test("reset clears history", () => {
     actions.undoReset();
     store.getState().count.should.equal(2);
 
-    historyExpect(history, 1, 0);
+    historyExpect(history, { length: 1, index: 0 });
   });
 });
 
@@ -275,7 +274,7 @@ test("views actions are not saved", () => {
   withViewStore(({ actions, history }) => {
     actions.doubleView();
 
-    historyExpect(history, 1, 0);
+    historyExpect(history, { length: 1, index: 0 });
   });
 });
 
@@ -283,7 +282,7 @@ test("deep view actions are not saved", () => {
   withViewStore(({ actions, history }) => {
     actions.doubleDeepView();
 
-    historyExpect(history, 1, 0);
+    historyExpect(history, { length: 1, index: 0 });
   });
 });
 
@@ -319,11 +318,11 @@ test("maxHistory works with redo too", () => {
       actions.increment();
       actions.undoUndo();
       actions.undoUndo();
-      historyExpect(history, 3, 0);
+      historyExpect(history, { length: 3, index: 0 });
       actions.increment();
       actions.increment();
       actions.increment();
-      historyExpect(history, 3, 3);
+      historyExpect(history, { length: 3, index: 3 });
       expect(history._getState(0)).toBeUndefined();
       history._oldestIndex()!.should.equal(1);
     },
@@ -339,11 +338,11 @@ test("actionStateFilter", () => {
   withStore(
     ({ actions, history }) => {
       actions.increment();
-      historyExpect(history, 2, 1);
+      historyExpect(history, { length: 2, index: 1 });
       actions.increment();
-      historyExpect(history, 3, 2);
+      historyExpect(history, { length: 3, index: 2 });
       actions.increment();
-      historyExpect(history, 3, 2);
+      historyExpect(history, { length: 3, index: 2 });
     },
     { skipAction }
   );
@@ -363,7 +362,7 @@ test("group Undo", () => {
     actions.increment();
     actions.increment();
     actions.undoGroupComplete();
-    historyExpect(history, 1, 0);
+    historyExpect(history, { length: 1, index: 0 });
     (history._getState(0) as Model).count.should.equal(2);
   });
 });
@@ -375,8 +374,7 @@ test("actionStateFilter with group Undo", () => {
       actions.increment();
       actions.increment();
       actions.undoGroupComplete();
-      expect(history._oldestIndex()).toBeUndefined();
-      expect(history._currentIndex()).toBeUndefined();
+      historyExpect(history, { length: 0, index: undefined });
     },
     { skipAction }
   );
@@ -396,7 +394,7 @@ test("group Ignore", () => {
     actions.undoGroupIgnore();
     actions.increment();
     history._currentIndex();
-    historyExpect(history, 2, 1);
+    historyExpect(history, { length: 2, index: 1 });
     (history._getState(1) as Model).count.should.equal(3);
   });
 });
