@@ -23,8 +23,7 @@ const defaultCmd = "dev";
 const entryPoints = ["./src/Api.ts"];
 
 export async function prod(): Promise<any> {
-  // include src maps and no-minify dist for now
-  return Promise.all([compileDefinitions(), bundle(false)]);
+  return Promise.all([compileDefinitions(), bundle(true)]);
   //return Promise.all([compileDefinitions(), bundle(true)]);
 }
 
@@ -43,8 +42,11 @@ function bundle(production: boolean): Promise<void> {
     entryPoints,
     outdir,
     bundle: true,
-    sourcemap: !production,
-    minify: production,
+    // include src maps and no-minify dist for now
+    // sourcemap: !production,
+    // minify: production,
+    sourcemap: true,
+    minify: false,
     splitting: true,
     format: "esm",
     target: "es2019",
