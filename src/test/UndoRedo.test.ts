@@ -15,7 +15,7 @@ import { enableES5 } from "immer";
 import { HistoryStore } from "../HistoryStore";
 import { undoRedo as undoRedoMiddleware } from "../Middleware";
 import {
-  HistoryOptions,
+  UndoOptions,
   ModelWithUndo,
   undoableModelAndHistory,
 } from "../Actions";
@@ -73,7 +73,7 @@ interface StoreAndHistory<M extends AnyObject> {
 
 function withStore(
   fn: (storeAndHistory: StoreAndHistory<Model>) => void,
-  historyOptions?: HistoryOptions<Model>
+  historyOptions?: UndoOptions<Model>
 ) {
   const { model, history } = undoableModelAndHistory(
     simpleModel,
