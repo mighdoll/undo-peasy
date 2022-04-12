@@ -47,7 +47,8 @@
     "react": "^17.0.2",
     "ts-jest": "^26.4.3",
     "typescript": "^4.5.4",
-    "tys": "^0.2.5"
+    "tys": "^0.2.5",
+    "yalc": "^1.0.0-pre.53"
   },
   "peerDependencies": {
     "easy-peasy": "^5.0.0"
