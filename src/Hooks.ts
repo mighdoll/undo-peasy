@@ -5,14 +5,14 @@ const typedHooks = createTypedHooks<WithUndo>();
 
 const useStoreActions = typedHooks.useStoreActions;
 
-export function useUndoGroup<T>(): (fn: () => T) => T {
+export function useUndoGroup<T>(): (fn: () => T, msg?: string) => T {
   const undoGroupStart = useStoreActions((model) => model.undoGroupStart);
   const undoGroupComplete = useStoreActions((model) => model.undoGroupComplete);
 
-  return function undoGroup<T>(fn: () => T): T {
+  return function undoGroup<T>(fn: () => T, msg?: string): T {
     let result: T;
 
-    undoGroupStart();
+    undoGroupStart(msg);
     try {
       result = fn();
     } finally {
@@ -22,18 +22,18 @@ export function useUndoGroup<T>(): (fn: () => T) => T {
   };
 }
 
-export function useUndoIgnore<T>(): (fn: () => T) => T {
-  const groupStart = useStoreActions((model) => model.undoGroupStart);
-  const groupIgnore = useStoreActions((model) => model.undoGroupIgnore);
+export function useUndoIgnore<T>(): (fn: () => T, msg?: string) => T {
+  const undoGroupStart = useStoreActions((model) => model.undoGroupStart);
+  const undoGroupIgnore = useStoreActions((model) => model.undoGroupIgnore);
 
-  return function undoGroup<T>(fn: () => T): T {
+  return function undoGroup<T>(fn: () => T, msg?: string): T {
     let result: T;
 
-    groupStart();
+    undoGroupStart(msg);
     try {
       result = fn();
     } finally {
-      groupIgnore();
+      undoGroupIgnore();
     }
     return result;
   };

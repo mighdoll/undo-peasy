@@ -46,11 +46,11 @@ const defaultMaxHistory = 250;
  */
 export function historyStore<M extends AnyObject>(
   toPlainState: (state: AnyObject) => AnyObject,
-  historyOptions?: UndoOptions<M>
+  options?: UndoOptions<M>
 ): HistoryStore {
-  const maxHistory = historyOptions?.maxHistory || defaultMaxHistory;
+  const maxHistory = options?.maxHistory || defaultMaxHistory;
   const storage = getStorage();
-  const logDiffs = historyOptions?.logDiffs || false;
+  const logDiffs = options?.logDiffs || false;
   let empty = currentIndex() !== undefined;
 
   return {
@@ -85,7 +85,7 @@ export function historyStore<M extends AnyObject>(
       }
       storage.setItem(oldestKey, "0");
       if (logDiffs) {
-        console.log("save\n", state);
+        console.log("save state: 0\n", state);
       }
     } else {
       const newDex = saveStateIfNew(state, currentDex);
@@ -167,6 +167,9 @@ export function historyStore<M extends AnyObject>(
 
       return newDex;
     } else {
+      if (options?.logDiffs) {
+        console.log(`not saving unchanged state @${currentDex}`);
+      }
       return currentDex;
     }
   }
