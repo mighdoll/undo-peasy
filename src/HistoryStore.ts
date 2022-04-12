@@ -1,6 +1,6 @@
 import { compare } from "fast-json-patch";
 import _ from "lodash";
-import { HistoryOptions } from "./Actions";
+import { UndoOptions } from "./Actions";
 import { AnyObject } from "./Utils";
 
 export const keyPrefix = "undo-redo-";
@@ -46,7 +46,7 @@ const defaultMaxHistory = 250;
  */
 export function historyStore<M extends AnyObject>(
   toPlainState: (state: AnyObject) => AnyObject,
-  historyOptions?: HistoryOptions<M>
+  historyOptions?: UndoOptions<M>
 ): HistoryStore {
   const maxHistory = historyOptions?.maxHistory || defaultMaxHistory;
   const storage = getStorage();
