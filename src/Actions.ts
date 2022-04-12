@@ -43,7 +43,7 @@ interface ActionAndState {
 
 export type KeyPathFilter = (key: string, path: string[]) => boolean;
 
-export interface HistoryOptions<M extends AnyObject> {
+export interface UndoOptions<M extends AnyObject> {
   /** save no more than this many undo states */
   maxHistory?: number;
 
@@ -52,6 +52,9 @@ export interface HistoryOptions<M extends AnyObject> {
 
   /** set to true to log each saved state */
   logDiffs?: boolean;
+
+  /** set to true to log grouping levels */
+  logGroups?: boolean;
 
   /** return true for actions that should not be saved into undo history */
   skipAction?: ActionStateFilter<M>;
@@ -70,7 +73,7 @@ export type ActionStateFilter<M extends AnyObject> = (
  */
 export function undoable<M extends AnyObject>(
   model: M,
-  historyOptions?: HistoryOptions<M>
+  historyOptions?: UndoOptions<M>
 ): ModelWithUndo<M> {
   const { model: modelWithUndo } = undoableModelAndHistory(
     model,
@@ -99,7 +102,7 @@ const skipNoKeys = (_str: string, _path: string[]) => false;
  */
 export function undoableModelAndHistory<M extends AnyObject>(
   model: M,
-  historyOptions?: HistoryOptions<M>
+  historyOptions?: UndoOptions<M>
 ): EnrichedModel<M> {
   const computeds = findModelComputeds(model);
   const history = historyStore(filterState, historyOptions);
