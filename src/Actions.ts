@@ -113,7 +113,7 @@ export function undoableModelAndHistory<M extends AnyObject>(
   const undoSave = action<WithUndo, ActionAndState>(
     (draftState, actionState) => {
       if (options?.logGroups) {
-        console.log("save, group level:", grouped);
+        console.log("undo save, group level:", grouped);
       }
       if (grouped === 0) {
         if (actionState) {
@@ -139,6 +139,8 @@ export function undoableModelAndHistory<M extends AnyObject>(
       } else {
         history.save(state, prevState);
       }
+    } else {
+      console.log("skipping action", action);
     }
   }
 
