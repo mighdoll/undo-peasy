@@ -139,9 +139,7 @@ export function undoableModelAndHistory<M extends AnyObject>(
       } else {
         history.save(state, prevState);
       }
-    } else {
-      console.log("skipping action", action);
-    }
+    } 
   }
 
   const undoReset = action<WithUndo>((draftState) => {
