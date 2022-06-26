@@ -31,7 +31,7 @@ export interface WithUndo {
   undoReset: Action<WithUndo>;
   undoUndo: Action<WithUndo>;
   undoRedo: Action<WithUndo>;
-  undoGroupStart: Action<WithUndo>;
+  undoGroupStart: Action<WithUndo, string | void | undefined>;
   undoGroupComplete: Action<WithUndo>;
   undoGroupIgnore: Action<WithUndo>;
 }
@@ -102,16 +102,19 @@ const skipNoKeys = (_str: string, _path: string[]) => false;
  */
 export function undoableModelAndHistory<M extends AnyObject>(
   model: M,
-  historyOptions?: UndoOptions<M>
+  options?: UndoOptions<M>
 ): EnrichedModel<M> {
   const computeds = findModelComputeds(model);
-  const history = historyStore(filterState, historyOptions);
-  const noSaveKeys = historyOptions?.noSaveKeys || skipNoKeys;
-  const skipAction = historyOptions?.skipAction || (() => false);
+  const history = historyStore(filterState, options);
+  const noSaveKeys = options?.noSaveKeys || skipNoKeys;
+  const skipAction = options?.skipAction || (() => false);
   let grouped = 0;
 
   const undoSave = action<WithUndo, ActionAndState>(
     (draftState, actionState) => {
+      if (options?.logGroups) {
+        console.log("undo save, group level:", grouped);
+      }
       if (grouped === 0) {
         if (actionState) {
           const { action, prevState } = actionState;
@@ -136,12 +139,16 @@ export function undoableModelAndHistory<M extends AnyObject>(
       } else {
         history.save(state, prevState);
       }
-    }
+    } 
   }
 
   const undoReset = action<WithUndo>((draftState) => {
     const state = filterState(draftState);
     history.reset(state);
+    grouped = 0;
+    if (options?.logGroups) {
+      console.log("undo reset, group level:", grouped);
+    }
   });
 
   const undoUndo = action<WithUndo>((draftState) => {
@@ -158,8 +165,12 @@ export function undoableModelAndHistory<M extends AnyObject>(
     }
   });
 
-  const undoGroupStart = action<WithUndo>(() => {
+  const undoGroupStart = action<WithUndo, string>((_, msg) => {
     grouped++;
+    if (options?.logGroups) {
+      const definedMessage = msg !== undefined ? msg : "";
+      console.log("group start, group level:", grouped, definedMessage);
+    }
   });
 
   const undoGroupComplete = action<WithUndo>((draftState) => {
@@ -168,12 +179,18 @@ export function undoableModelAndHistory<M extends AnyObject>(
       grouped = 0;
       save(draftState, { type: "@action.undoGroupComplete" }, draftState);
     }
+    if (options?.logGroups) {
+      console.log("group complete, group level:", grouped);
+    }
   });
 
   const undoGroupIgnore = action<WithUndo>((draftState) => {
     grouped--;
     if (grouped <= 0) {
       grouped = 0;
+    }
+    if (options?.logGroups) {
+      console.log("group ignore, group level:", grouped);
     }
   });
 
