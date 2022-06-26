@@ -135,7 +135,7 @@ test("undo, no reset first", () => {
 test("zero state filters views", () => {
   withViewStore(({ history, actions }) => {
     actions.increment();
-    history._currentIndex().should.equal(1);
+    history._currentIndex()!.should.equal(1);
     history._getState(0);
     expect(history._getState(0)?.view).toBeUndefined;
   });
