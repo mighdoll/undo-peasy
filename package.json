@@ -12,8 +12,8 @@
     "package.json"
   ],
   "dependencies": {
-    "fast-json-patch": "^3.0.0-1",
-    "lodash": "^4.17.20"
+    "fast-json-patch": "^3.1.1",
+    "lodash": "^4.17.21"
   },
   "scripts": {
     "test": "jest",
@@ -25,33 +25,34 @@
   },
   "devDependencies": {
     "@skypack/package-check": "^0.2.2",
-    "@types/chai": "^4.2.14",
+    "@types/chai": "^4.3.1",
     "@types/fast-json-patch": "^1.1.5",
-    "@types/lodash": "^4.14.163",
+    "@types/jest": "^28.1.3",
+    "@types/lodash": "^4.14.182",
     "@types/node-localstorage": "^1.3.0",
-    "@typescript-eslint/eslint-plugin": "^4.6.0",
-    "@typescript-eslint/parser": "^4.6.0",
-    "chai": "^4.2.0",
-    "chokidar": "^3.4.3",
-    "easy-peasy": "^5.0.0",
-    "esbuild": "^0.8.32",
-    "esbuild-node-externals": "^1.0.1",
-    "eslint": "^7.12.1",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-prettier": "^3.1.4",
-    "fs-extra": "^9.0.1",
-    "immer": "^8.0.0",
-    "jest": "^26.6.1",
-    "jest-localstorage-mock": "^2.4.3",
-    "prettier": "^2.1.2",
-    "react": "^17.0.2",
-    "ts-jest": "^26.4.3",
-    "typescript": "^4.5.4",
+    "@typescript-eslint/eslint-plugin": "^5.29.0",
+    "@typescript-eslint/parser": "^5.29.0",
+    "chai": "^4.3.6",
+    "chokidar": "^3.5.3",
+    "easy-peasy": "^5.0.4",
+    "esbuild": "^0.14.47",
+    "esbuild-node-externals": "^1.4.1",
+    "eslint": "^8.18.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "fs-extra": "^10.1.0",
+    "immer": "^9.0.15",
+    "jest": "^28.1.1",
+    "jest-localstorage-mock": "^2.4.21",
+    "prettier": "^2.7.1",
+    "react": "^18.2.0",
+    "ts-jest": "^28.0.5",
+    "typescript": "^4.7.4",
     "tys": "^0.2.5",
     "yalc": "^1.0.0-pre.53"
   },
   "peerDependencies": {
-    "easy-peasy": "^5.0.0"
+    "easy-peasy": "^5.0.4"
   },
   "description": "undo/redo for easy peasy",
   "repository": {

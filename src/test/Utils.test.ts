@@ -1,7 +1,8 @@
-import "chai/register-should";
+import { should } from "chai";
 import _ from "lodash";
 import { copyFiltered } from "../Utils";
 
+should();
 
 test("remove functions", () => {
   const src: any = {

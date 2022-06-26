@@ -1,5 +1,4 @@
-import { assert } from "chai";
-import "chai/register-should";
+import { should, assert } from "chai";
 import {
   action,
   Action,
@@ -22,6 +21,7 @@ import {
 import { AnyObject, findModelComputeds } from "../Utils";
 import { AnyAction } from "redux";
 
+should();
 enableES5();
 
 interface Model {
