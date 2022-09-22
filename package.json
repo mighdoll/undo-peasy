@@ -1,6 +1,6 @@
 {
   "name": "undo-peasy",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "main": "dist/Api.js",
   "module": "dist/Api.ts",
   "types": "dist/Api.d.ts",
